@@ -1,0 +1,86 @@
+.aPropos {
+    padding: 2rem 0;
+    background: linear-gradient(135deg, #A4D8E1 0%, #F6EBA8 100%); /* Dégradé bleu vers jaune */
+    
+    display: flex;
+    align-items: center;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+  }
+  
+  .photoContainer {
+    flex: 1;
+    padding-right: 2rem;
+  }
+  
+  .photo {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 50%;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .textContainer {
+    flex: 2;
+  
+    h2 {
+      font-size: 2.5rem;
+      color: #333; /* Couleur sombre pour le texte */
+      margin-bottom: 1rem;
+    }
+  
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #555; /* Couleur légèrement plus claire pour le texte */
+      margin-bottom: 1rem;
+    }
+  
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+  
+      li {
+        font-size: 1.1rem;
+        color: #555; /* Couleur des éléments de la liste */
+        margin-bottom: 0.5rem;
+  
+        &:before {
+          content: "•";
+          color: #FF6F61; /* Couleur d'un point avant chaque élément */
+          font-weight: bold;
+          display: inline-block;
+          width: 1em;
+          margin-left: -1em;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .photoContainer {
+      padding-right: 0;
+      margin-bottom: 2rem;
+    }
+  
+    .photo {
+      max-width: 300px;
+    }
+  
+    .textContainer {
+      ul {
+        text-align: left;
+      }
+    }
+  }
