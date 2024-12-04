@@ -17,7 +17,7 @@ const Navbar = () => {
         </a>
       </div>
       <div className={`${styles.navbarRight} ${isOpen ? styles.open : ''}`}>
-        <button className={styles.menuButton} onClick={toggleMenu}>
+        <button className={`${styles.menuButton} ${isOpen ? styles.active : ''}`} onClick={toggleMenu}>
           <span></span>
           <span></span>
           <span></span>
