@@ -1,10 +1,18 @@
+@import '../variables.scss';
+
 .aPropos {
-    padding: 2rem 0;
-    background: linear-gradient(135deg, #A4D8E1 0%, #F6EBA8 100%); /* Dégradé bleu vers jaune */
-    
-    display: flex;
-    align-items: center;
-  }
+  padding: 1rem 0;
+  background-image: linear-gradient(
+      to bottom,
+      $color1 0%,
+      $color1 33%,
+      // $color1 66%,
+      $color5 100%,
+  );
+  display: flex;
+  align-items: center;
+  // min-height: 50vh; // Assurez-vous que le gradient couvre toute la hauteur
+}
   
   .container {
     max-width: 1200px;
@@ -22,17 +30,33 @@
   .photo {
     width: 100%;
     max-width: 400px;
-    border-radius: 50%;
+    border-radius: 10%;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   }
   
   .textContainer {
     flex: 2;
   
-    h2 {
+    h1 {
       font-size: 2.5rem;
-      color: #333; /* Couleur sombre pour le texte */
-      margin-bottom: 1rem;
+      color: $color5; // Assurez-vous que $color5 est défini dans vos variables
+    
+      // Appliquer le text-shadow uniquement au texte principal
+      text-shadow: 
+        -1px -1px 0 #000,  
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000;
+      
+      // Cibler le span pour ne pas avoir de text-shadow
+      span {
+        font-size: 1.5rem;
+        font-style: italic;
+        color: inherit; // Assurez-vous que le span hérite de la couleur du h1
+        text-shadow: none; // Pas de contour noir sur le span
+        display: inline-block;
+  transform: rotate(-3deg);
+      }
     }
   
     p {

@@ -1,0 +1,104 @@
+@import '../variables.scss';
+
+.footer {
+    background-color: $color3;
+    padding: 2rem 0;
+    text-align: center;
+  }
+  
+  .footerContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1rem;
+  
+    .footerLogo {
+      h2 {
+        font-size: 2rem;
+        letter-spacing: 3px;
+        color: #ffffff;
+        text-shadow: 
+        -1px -1px 0 #000,  
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000;
+      }
+    }
+  
+    .footerNav {
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 1rem 0;
+  
+        li {
+          display: inline;
+          margin: 0 1rem;
+  
+          a {
+            text-decoration: none;
+            color: #007bff;
+  
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
+      }
+    }
+  
+    .footerContact {
+      p {
+        margin: 0.5rem 0;
+      }
+    }
+  
+    .legalMentions {
+      h3 {
+        margin-top: 1rem;
+        font-size: 1.5rem;
+      }
+  
+      p {
+        margin: 0.5rem 0;
+  
+        a {
+          color: #007bff;
+          text-decoration: none;
+  
+          &:hover {
+            text-decoration: underline; // Souligner au survol
+          }
+        }
+      }
+    }
+  }
+  
+  .footerBottom {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+  
+    p {
+      margin: 0;
+      color: #6c757d; // Couleur du texte en bas
+      margin-bottom: 0.5rem; // Ajout d'un peu d'espace entre le texte et le logo
+    }
+  
+    .devInfo {
+      display: flex; // Utilisation de flex pour aligner l'image et le texte
+      align-items: center; // Centrer verticalement
+      justify-content: center; // Centrer horizontalement
+  
+      .logoDev {
+        width: auto; // Ajustez la largeur selon vos besoins
+        height: 30px; // Ajustez la hauteur selon vos besoins
+        margin-right: 10px; // Espace entre le logo et le texte
+        max-width:100%; // Assurez-vous que le logo ne dépasse pas la largeur de son conteneur
+      }
+  
+      .devText {
+        font-size: 1rem; // Ajustez la taille du texte selon vos besoins
+        color: #6c757d; // Couleur du texte pour le développeur
+      }
+     }
+  }

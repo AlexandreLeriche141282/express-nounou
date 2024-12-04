@@ -1,0 +1,61 @@
+.childcare-services {
+  padding: 2rem;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+.childcare-services h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.childcare-services .services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+.childcare-services .service-card {
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  overflow: hidden;
+  -webkit-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  -webkit-transition: -webkit-transform 0.3s ease;
+  transition: -webkit-transform 0.3s ease;
+  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, -webkit-transform 0.3s ease;
+  cursor: pointer;
+}
+.childcare-services .service-card:hover {
+  -webkit-transform: translateY(-5px);
+          transform: translateY(-5px);
+}
+.childcare-services .service-card img {
+  width: 100%;
+  height: 200px;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.childcare-services .service-card h3 {
+  padding: 1rem;
+  margin: 0;
+}
+.childcare-services .service-card p {
+  padding: 0 1rem 1rem;
+  font-size: 0.9rem;
+}
+.childcare-services .service-card button {
+  display: block;
+  width: 80%;
+  margin: 1rem auto;
+  padding: 0.5rem;
+  background-color: rgb(231, 164, 179);
+  color: white;
+  border: none;
+  letter-spacing: 2px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.childcare-services .service-card button:hover {
+  background-color: rgb(255, 255, 255);
+  color: rgb(231, 164, 179);
+}/*# sourceMappingURL=ChildcareServices.css.map */

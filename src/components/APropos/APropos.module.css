@@ -1,7 +1,8 @@
 @charset "UTF-8";
 .aPropos {
-  padding: 2rem 0;
-  background: linear-gradient(135deg, #A4D8E1 0%, #F6EBA8 100%); /* Dégradé bleu vers jaune */
+  padding: 1rem 0;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(255, 211, 204)), color-stop(33%, rgb(255, 211, 204)), to(rgb(255, 255, 255)));
+  background-image: linear-gradient(to bottom, rgb(255, 211, 204) 0%, rgb(255, 211, 204) 33%, rgb(255, 255, 255) 100%);
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -32,7 +33,7 @@
 .photo {
   width: 100%;
   max-width: 400px;
-  border-radius: 50%;
+  border-radius: 10%;
   -webkit-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
@@ -42,10 +43,19 @@
       -ms-flex: 2;
           flex: 2;
 }
-.textContainer h2 {
+.textContainer h1 {
   font-size: 2.5rem;
-  color: #333; /* Couleur sombre pour le texte */
-  margin-bottom: 1rem;
+  color: rgb(255, 255, 255);
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+.textContainer h1 span {
+  font-size: 1.5rem;
+  font-style: italic;
+  color: inherit;
+  text-shadow: none;
+  display: inline-block;
+  -webkit-transform: rotate(-3deg);
+          transform: rotate(-3deg);
 }
 .textContainer p {
   font-size: 1.1rem;
