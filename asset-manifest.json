@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/express-nounou/static/css/main.61ca872c.css",
-    "main.js": "/express-nounou/static/js/main.9805318e.js",
+    "main.css": "/express-nounou/static/css/main.fd700bae.css",
+    "main.js": "/express-nounou/static/js/main.7900b173.js",
     "static/js/453.61ce8e36.chunk.js": "/express-nounou/static/js/453.61ce8e36.chunk.js",
     "static/media/aideDevoir.jpg": "/express-nounou/static/media/aideDevoir.5b79da657c625e5ecd2d.jpg",
     "static/media/GE2.jpg": "/express-nounou/static/media/GE2.6222e4cf72dfda035a0d.jpg",
@@ -14,12 +14,12 @@
     "static/media/logo2.png": "/express-nounou/static/media/logo2.1e9367aea4c403e18f4c.png",
     "static/media/logoPikcel.svg": "/express-nounou/static/media/logoPikcel.e5acca1a54a0b19974929ecd21348d89.svg",
     "index.html": "/express-nounou/index.html",
-    "main.61ca872c.css.map": "/express-nounou/static/css/main.61ca872c.css.map",
-    "main.9805318e.js.map": "/express-nounou/static/js/main.9805318e.js.map",
+    "main.fd700bae.css.map": "/express-nounou/static/css/main.fd700bae.css.map",
+    "main.7900b173.js.map": "/express-nounou/static/js/main.7900b173.js.map",
     "453.61ce8e36.chunk.js.map": "/express-nounou/static/js/453.61ce8e36.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.61ca872c.css",
-    "static/js/main.9805318e.js"
+    "static/css/main.fd700bae.css",
+    "static/js/main.7900b173.js"
   ]
 }
