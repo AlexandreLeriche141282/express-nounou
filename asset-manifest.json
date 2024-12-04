@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/express-nounou/static/css/main.61ca872c.css",
+    "main.js": "/express-nounou/static/js/main.219f99b9.js",
+    "static/js/453.61ce8e36.chunk.js": "/express-nounou/static/js/453.61ce8e36.chunk.js",
+    "static/media/aideDevoir.jpg": "/express-nounou/static/media/aideDevoir.5b79da657c625e5ecd2d.jpg",
+    "static/media/GE2.jpg": "/express-nounou/static/media/GE2.6222e4cf72dfda035a0d.jpg",
+    "static/media/gardeJournee.jpg": "/express-nounou/static/media/gardeJournee.db7d1a0f1b3b8eb62790.jpg",
+    "static/media/gardeEcole.jpg": "/express-nounou/static/media/gardeEcole.857b99f0746c8b62a85b.jpg",
+    "static/media/gardeAvantEcole.jpg": "/express-nounou/static/media/gardeAvantEcole.22c2560835b3d81b1cdf.jpg",
+    "static/media/gardeSoir.jpg": "/express-nounou/static/media/gardeSoir.bafaddfacc6753421b14.jpg",
+    "static/media/gardeMatin2.jpg": "/express-nounou/static/media/gardeMatin2.32ecc6d3bb2c868e73a0.jpg",
+    "static/media/aideMenage.jpg": "/express-nounou/static/media/aideMenage.8cf4112ae45d504f4d0e.jpg",
+    "static/media/logo2.png": "/express-nounou/static/media/logo2.1e9367aea4c403e18f4c.png",
+    "static/media/logoPikcel.svg": "/express-nounou/static/media/logoPikcel.e5acca1a54a0b19974929ecd21348d89.svg",
+    "index.html": "/express-nounou/index.html",
+    "main.61ca872c.css.map": "/express-nounou/static/css/main.61ca872c.css.map",
+    "main.219f99b9.js.map": "/express-nounou/static/js/main.219f99b9.js.map",
+    "453.61ce8e36.chunk.js.map": "/express-nounou/static/js/453.61ce8e36.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.61ca872c.css",
+    "static/js/main.219f99b9.js"
+  ]
+}
