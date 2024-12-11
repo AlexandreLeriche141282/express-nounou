@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './ChildcareReservationModal.module.scss';
 
 const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const [step, setStep] = useState(0);
+  const [isNextButtonEnabled, setIsNextButtonEnabled] = useState(false);
   const [formData, setFormData] = useState({
     parentFirstName: '',
     parentLastName: '',
@@ -19,28 +20,6 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     endTime: '',
     specialNeeds: ''
   });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-  };
-
-  const handleNext = () => {
-    setStep(prevStep => prevStep + 1);
-  };
-
-  const handlePrevious = () => {
-    setStep(prevStep => prevStep - 1);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit({ service: selectedService, ...formData });
-    onClose();
-  };
 
   const questions = [
     {
@@ -79,6 +58,41 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     },
   ];
 
+  useEffect(() => {
+    setIsNextButtonEnabled(isStepValid());
+  }, [formData, step]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const isStepValid = () => {
+    const currentFields = questions[step].fields;
+    return currentFields.every(field => formData[field.name].trim() !== '');
+  };
+
+  const handleNext = () => {
+    if (isStepValid()) {
+      setStep(prevStep => prevStep + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    setStep(prevStep => prevStep - 1);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isStepValid()) {
+      onSubmit({ service: selectedService, ...formData });
+      onClose();
+    }
+  };
+
   if (!isOpen) return null;
 
   const currentQuestion = questions[step];
@@ -116,9 +130,22 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
               <button type="button" onClick={handlePrevious}>Précédent</button>
             )}
             {step < questions.length - 1 ? (
-              <button type="button" onClick={handleNext}>Suivant</button>
+              <button 
+                type="button" 
+                onClick={handleNext} 
+                disabled={!isNextButtonEnabled}
+                className={`${styles.nextButton} ${isNextButtonEnabled ? styles.enabled : styles.disabled}`}
+              >
+                Suivant
+              </button>
             ) : (
-              <button type="submit">Réserver</button>
+              <button 
+                type="submit"
+                disabled={!isNextButtonEnabled}
+                className={`${styles.submitButton} ${isNextButtonEnabled ? styles.enabled : styles.disabled}`}
+              >
+                Réserver
+              </button>
             )}
           </div>
         </form>

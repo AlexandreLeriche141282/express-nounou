@@ -1,0 +1,113 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 10px;
+  width: 500px;
+  max-width: 90%;
+  max-height: 90vh;
+  padding: 30px;
+  -webkit-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+.modalContent h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+.modalContent form {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 15px;
+}
+.modalContent form input,
+.modalContent form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  -webkit-transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease;
+}
+.modalContent form input:focus,
+.modalContent form textarea:focus {
+  outline: none;
+  border-color: #FD6C9E;
+}
+.modalContent form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+.modalContent form .formActions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  margin-top: 20px;
+}
+.modalContent form .formActions button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+  width: 48%;
+}
+.modalContent form .formActions button.nextButton.enabled, .modalContent form .formActions button.submitButton.enabled {
+  background-color: #FD6C9E;
+  color: white;
+}
+.modalContent form .formActions button.nextButton.enabled:hover, .modalContent form .formActions button.submitButton.enabled:hover {
+  background-color: #218838;
+}
+.modalContent form .formActions button.nextButton.disabled, .modalContent form .formActions button.submitButton.disabled {
+  background-color: rgb(231, 164, 179);
+  color: white;
+  cursor: not-allowed;
+}
+.modalContent form .formActions button[type=button]:not(.nextButton) {
+  background-color: rgb(197, 215, 229);
+  color: white;
+}
+.modalContent form .formActions button[type=button]:not(.nextButton):hover {
+  background-color: #c82333;
+}
+
+@media (max-width: 600px) {
+  .modalContent {
+    width: 65%;
+  }
+  .modalContent form input,
+  .modalContent form textarea {
+    font-size: 0.9rem;
+  }
+}/*# sourceMappingURL=ChildcareReservationModal.module.css.map */

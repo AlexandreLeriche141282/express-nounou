@@ -1,3 +1,5 @@
+@import '../variables.scss';
+
 .modalOverlay {
     position: fixed;
     top: 0;
@@ -44,7 +46,7 @@
   
         &:focus {
           outline: none;
-          border-color: #007bff;
+          border-color: $color6;
         }
       }
   
@@ -53,38 +55,48 @@
         min-height: 100px;
       }
   
-      .formGroup {
+      .formActions {
         display: flex;
-        flex-direction: column;
-      }
-  
-      button {
-        padding: 12px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: background-color 0.3s ease;
-  
-        &[type="submit"] {
-          background-color: #28a745;
-          color: white;
-  
-          &:hover {
-            background-color: #218838;
+        justify-content: space-between;
+        margin-top: 20px;
+      
+        button {
+          padding: 12px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          width: 48%;
+      
+          &.nextButton, &.submitButton {
+            &.enabled {
+              background-color: $color6;
+              color: white;
+      
+              &:hover {
+                background-color: #218838;
+              }
+            }
+      
+            &.disabled {
+              background-color: $color3;
+              color: white;
+              cursor: not-allowed;
+            }
+          }
+      
+          &[type="button"]:not(.nextButton) {
+            background-color: $color2;
+            color: white;
+      
+            &:hover {
+              background-color: #c82333;
+            }
           }
         }
-  
-        &[type="button"] {
-          background-color: #dc3545;
-          color: white;
-          margin-top: 10px;
-  
-          &:hover {
-            background-color: #c82333;
-          }
-        }
       }
+      
     }
   }
   
@@ -92,7 +104,7 @@
   @media (max-width: 600px) {
     .modalContent {
       width: 65%;
-      padding: 20px;
+      // padding: 30px;
   
       form {
         input, 
