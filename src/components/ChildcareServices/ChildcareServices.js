@@ -1,14 +1,16 @@
-import React from 'react';
+// ChildcareServices.jsx
+import React, { useState } from 'react';
 import './ChildcareServices.scss';
+import ReservationModal from '../Reservation-modal/Reservation-modal';
 
 // Importez vos images ici
 import morningCareImage from '../../Assets/images/gardeMatin2.jpg';
 import beforeSchoolImage from '../../Assets/images/gardeAvantEcole.jpg';
-import afterSchoolImage from '../../Assets/images/gardeEcole.jpg';
-import eveningCareImage from '../../Assets/images/gardeSoir.jpg';
-import dayCareImage from '../../Assets/images/gardeJournee.jpg';
-import housekeepingImage from '../../Assets/images/aideMenage.jpg';
-import homeworkHelpImage from '../../Assets/images/aideDevoir.jpg';
+import afterSchoolImage from '../../Assets/images/grade-ecole.jpg';
+import eveningCareImage from '../../Assets/images/garde-soir.avif';
+import dayCareImage from '../../Assets/images/grade-journee.avif';
+import housekeepingImage from '../../Assets/images/aide-menage.jpg';
+import homeworkHelpImage from '../../Assets/images/grade-devoir.avif';
 
 const services = [
   { title: "Garde du matin", image: morningCareImage, description: "Prise en charge des enfants tôt le matin" },
@@ -21,9 +23,22 @@ const services = [
 ];
 
 const ChildcareServices = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+
   const handleServiceClick = (serviceTitle) => {
-    // Ici, vous pourrez plus tard ajouter la logique pour la réservation
-    console.log(`Service sélectionné : ${serviceTitle}`);
+    setSelectedService(serviceTitle);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSubmitReservation = (reservationData) => {
+    console.log('Réservation soumise:', { service: selectedService, ...reservationData });
+    setIsModalOpen(false);
+    // Ici, vous pouvez ajouter la logique pour traiter la réservation
   };
 
   return (
@@ -32,14 +47,21 @@ const ChildcareServices = () => {
       
       <div className="services-grid">
         {services.map((service, index) => (
-          <div key={index} className="service-card" onClick={() => handleServiceClick(service.title)}>
+          <div key={index} className="service-card">
             <img src={service.image} alt={service.title} />
             <h3>{service.title}</h3>
             <p>{service.description}</p>
-            <button>Réserver</button>
+            <button onClick={() => handleServiceClick(service.title)}>Réserver</button>
           </div>
         ))}
       </div>
+
+      <ReservationModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitReservation}
+        selectedService={selectedService}
+      />
     </section>
   );
 };

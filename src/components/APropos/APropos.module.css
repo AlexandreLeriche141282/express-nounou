@@ -1,8 +1,8 @@
 @charset "UTF-8";
 .aPropos {
   padding: 1rem 0;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(255, 211, 204)), color-stop(33%, rgb(255, 211, 204)), to(rgb(255, 255, 255)));
-  background-image: linear-gradient(to bottom, rgb(255, 211, 204) 0%, rgb(255, 211, 204) 33%, rgb(255, 255, 255) 100%);
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#FD6C9E), color-stop(33%, #FD6C9E), to(rgb(255, 255, 255)));
+  background-image: linear-gradient(to bottom, #FD6C9E 0%, #FD6C9E 33%, rgb(255, 255, 255) 100%);
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
