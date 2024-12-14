@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/express-nounou/static/css/main.767656ac.css",
-    "main.js": "/express-nounou/static/js/main.9301690a.js",
+    "main.js": "/express-nounou/static/js/main.985fdf68.js",
     "static/js/453.61ce8e36.chunk.js": "/express-nounou/static/js/453.61ce8e36.chunk.js",
     "static/media/GE2.jpg": "/express-nounou/static/media/GE2.c189dd6656f260688d62.jpg",
     "static/media/gardeMatin2.jpg": "/express-nounou/static/media/gardeMatin2.736449a21469219f94f2.jpg",
@@ -15,11 +15,11 @@
     "static/media/grade-devoir.avif": "/express-nounou/static/media/grade-devoir.d97abd911d24a94d12a3.avif",
     "index.html": "/express-nounou/index.html",
     "main.767656ac.css.map": "/express-nounou/static/css/main.767656ac.css.map",
-    "main.9301690a.js.map": "/express-nounou/static/js/main.9301690a.js.map",
+    "main.985fdf68.js.map": "/express-nounou/static/js/main.985fdf68.js.map",
     "453.61ce8e36.chunk.js.map": "/express-nounou/static/js/453.61ce8e36.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.767656ac.css",
-    "static/js/main.9301690a.js"
+    "static/js/main.985fdf68.js"
   ]
 }
