@@ -37,9 +37,9 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     {
       title: "Détails de la garde",
       fields: [
-        { name: "guardDate", placeholder: "Date de garde", type: "text", inputMode: "date" },
-        { name: "startTime", placeholder: "Heure de début", type: "text", inputMode: "time" },
-        { name: "endTime", placeholder: "Heure de fin", type: "text", inputMode: "time" },
+        { name: "guardDate", placeholder: "Date de garde", type: "date" },
+        { name: "startTime", placeholder: "Heure de début", type: "time" },
+        { name: "endTime", placeholder: "Heure de fin", type: "time" },
         { name: "specialNeeds", placeholder: "Besoins spécifiques ou commentaires", type: "textarea" },
       ]
     },
@@ -84,10 +84,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   }, [formData, step]);
 
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
-    if (type === 'text' && (name === 'guardDate' || name.includes('Time'))) {
-      e.target.type = name === 'guardDate' ? 'date' : 'time';
-    }
+    const { name, value } = e.target;
     setFormData(prevState => ({
       ...prevState,
       [name]: value
@@ -145,17 +142,6 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
                   placeholder={field.placeholder}
                   value={formData[field.name]}
                   onChange={handleChange}
-                  onFocus={(e) => {
-                    if (field.inputMode === 'date' || field.inputMode === 'time') {
-                      e.target.type = field.inputMode;
-                    }
-                  }}
-                  onBlur={(e) => {
-                    if (field.inputMode === 'date' || field.inputMode === 'time') {
-                      if (!e.target.value) e.target.type = 'text';
-                    }
-                  }}
-                  inputMode={field.inputMode}
                   required
                 />
               )}
