@@ -137,13 +137,24 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
                 />
               ) : (
                 <input
-                  type={field.type}
-                  name={field.name}
-                  placeholder={field.placeholder}
-                  value={formData[field.name]}
-                  onChange={handleChange}
-                  required
-                />
+  type={field.type}
+  name={field.name}
+  value={formData[field.name]}
+  onChange={handleChange}
+  placeholder={field.type === 'date' || field.type === 'time' ? '' : field.placeholder}
+  onFocus={(e) => {
+    if (field.type === 'date' || field.type === 'time') {
+      e.target.type = field.type;
+    }
+  }}
+  onBlur={(e) => {
+    if (field.type === 'date' || field.type === 'time' && e.target.value === '') {
+      e.target.type = 'text'; // Placeholder sera visible si vide
+    }
+  }}
+  required
+/>
+
               )}
             </div>
           ))}
