@@ -11,7 +11,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const [formData, setFormData] = useState({
     parentFirstName: '',
     parentLastName: '',
-    numberOfChildren: '',
+    numberOfChildren: 1, // Nombre d'enfants sélectionné
     childrenDetails: [
       { firstName: '', lastName: '', age: '' }
     ],
@@ -92,7 +92,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     setFormData({
       parentFirstName: '',
       parentLastName: '',
-      numberOfChildren: '',
+      numberOfChildren: 1,
       childrenDetails: [{ firstName: '', lastName: '', age: '' }],
       email: '',
       phone: '',
@@ -135,65 +135,39 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     }));
   };
 
-  const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Rayon de la Terre en kilomètres
-    const dLat = (lat2 - lat1) * (Math.PI / 180);
-    const dLon = (lon2 - lon1) * (Math.PI / 180);
-    const a = 
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+  const renderChildrenFields = () => {
+    return [...Array(Number(formData.numberOfChildren))].map((_, index) => (
+      <div key={index} className={styles.formRow}>
+        <h4>Enfant {index + 1}</h4>
+        <label htmlFor={`childFirstName-${index}`}>Prénom</label>
+        <input
+          id={`childFirstName-${index}`}
+          type="text"
+          value={formData.childrenDetails[index]?.firstName || ''}
+          onChange={(e) => handleChildDetailsChange(index, 'firstName', e.target.value)}
+          required
+        />
+
+        <label htmlFor={`childLastName-${index}`}>Nom</label>
+        <input
+          id={`childLastName-${index}`}
+          type="text"
+          value={formData.childrenDetails[index]?.lastName || ''}
+          onChange={(e) => handleChildDetailsChange(index, 'lastName', e.target.value)}
+          required
+        />
+
+        <label htmlFor={`childAge-${index}`}>Âge</label>
+        <input
+          id={`childAge-${index}`}
+          type="number"
+          value={formData.childrenDetails[index]?.age || ''}
+          onChange={(e) => handleChildDetailsChange(index, 'age', e.target.value)}
+          required
+        />
+      </div>
+    ));
   };
-
-  const debouncedAddress = useDebounce(
-    `${formData.address}, ${formData.city}, ${formData.postalCode}`,
-    500 // 500ms de délai
-  );
-
-  useEffect(() => {
-    const validateAddressDistance = async () => {
-      if (!formData.address || !formData.city || !formData.postalCode) {
-        setIsNextButtonEnabled(isStepValid());
-        setAddressError('Veuillez remplir tous les champs d\'adresse.');
-        return;
-      }
-
-      try {
-        const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {
-          params: {
-            q: debouncedAddress,
-            key: API_KEY,
-            language: 'fr',
-            limit: 1
-          }
-        });
-
-        const results = response.data.results;
-        if (results.length > 0) {
-          const { lat, lng } = results[0].geometry;
-          const distance = calculateDistance(lat, lng, 49.0069, 2.0771); // Coordonnées d'Eragny
-          if (distance <= 30) {
-            setIsNextButtonEnabled(true);
-            setAddressError('');
-          } else {
-            setIsNextButtonEnabled(false);
-            setAddressError('L\'adresse est trop éloignée (plus de 30 km).');
-          }
-        } else {
-          setIsNextButtonEnabled(false);
-          setAddressError('Adresse invalide. Veuillez vérifier les informations.');
-        }
-      } catch (error) {
-        console.error("Erreur lors de la géolocalisation :", error);
-        setIsNextButtonEnabled(false);
-        setAddressError('Erreur lors de la vérification de l\'adresse. Veuillez réessayer.');
-      }
-    };
-
-    validateAddressDistance();
-  }, [debouncedAddress]);
 
   const handleNext = () => {
     if (isStepValid()) {
@@ -204,40 +178,6 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const handlePrevious = () => {
     setStep(prevStep => prevStep - 1);
   };
-  const renderChildrenFields = () => {
-    return formData.childrenDetails.map((child, index) => (
-      <div key={index} className={styles.formRow}>
-        <h4>Enfant {index + 1}</h4>
-        <label htmlFor={`childFirstName-${index}`}>Prénom</label>
-        <input
-          id={`childFirstName-${index}`}
-          type="text"
-          value={child.firstName}
-          onChange={(e) => handleChildDetailsChange(index, 'firstName', e.target.value)}
-          required
-        />
-  
-        <label htmlFor={`childLastName-${index}`}>Nom</label>
-        <input
-          id={`childLastName-${index}`}
-          type="text"
-          value={child.lastName}
-          onChange={(e) => handleChildDetailsChange(index, 'lastName', e.target.value)}
-          required
-        />
-  
-        <label htmlFor={`childAge-${index}`}>Âge</label>
-        <input
-          id={`childAge-${index}`}
-          type="number"
-          value={child.age}
-          onChange={(e) => handleChildDetailsChange(index, 'age', e.target.value)}
-          required
-        />
-      </div>
-    ));
-  };
-  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -253,7 +193,6 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     return currentFields.every(field => {
       const value = formData[field.name];
 
-      // Vérification pour les champs de type "children" (détails des enfants)
       if (field.type === 'children') {
         const childrenDetails = formData.childrenDetails;
         return childrenDetails.every(child => 
@@ -261,17 +200,16 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
         );
       }
 
-      // Validation des autres types de champs
       if (typeof value === 'string') {
-        return value.trim() !== ''; // Vérification si c'est une chaîne de caractères non vide
+        return value.trim() !== '';
       }
       if (typeof value === 'number') {
-        return !isNaN(value) && value !== ''; // Vérification pour les champs numériques
+        return !isNaN(value) && value !== '';
       }
       if (Array.isArray(value)) {
-        return value.length > 0; // Vérification pour les tableaux (enfants, par exemple)
+        return value.length > 0;
       }
-      return value !== '' && value !== null && value !== undefined; // Autres types
+      return value !== '' && value !== null && value !== undefined;
     });
   };
 
