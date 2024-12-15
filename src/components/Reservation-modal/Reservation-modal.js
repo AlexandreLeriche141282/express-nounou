@@ -23,33 +23,33 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     {
       title: "Adresse",
       fields: [
-        { name: "address", placeholder: "Adresse", type: "text" },
-        { name: "city", placeholder: "Ville", type: "text" },
-        { name: "postalCode", placeholder: "Code postal", type: "text" },
+        { name: "address", label: "Adresse", type: "text" },
+        { name: "city", label: "Ville", type: "text" },
+        { name: "postalCode", label: "Code postal", type: "text" },
       ]
     },
     {
       title: "Informations sur l'enfant",
       fields: [
-        { name: "childAge", placeholder: "Âge de l'enfant", type: "number" },
+        { name: "childAge", label: "Âge de l'enfant", type: "number" },
       ]
     },
     {
-      title: "Détails de la garde",
+      title: "Date et horaires de la garde",
       fields: [
-        { name: "guardDate", placeholder: "Date de garde", type: "date" },
-        { name: "startTime", placeholder: "Heure de début", type: "time" },
-        { name: "endTime", placeholder: "Heure de fin", type: "time" },
-        { name: "specialNeeds", placeholder: "Besoins spécifiques ou commentaires", type: "textarea" },
+        { name: "guardDate", label: "Date de garde", type: "date" },
+        { name: "startTime", label: "Heure de début", type: "time" },
+        { name: "endTime", label: "Heure de fin", type: "time" },
+        { name: "specialNeeds", label: "Besoins spécifiques ou commentaires", type: "textarea" },
       ]
     },
     {
       title: "Informations sur le parent",
       fields: [
-        { name: "parentFirstName", placeholder: "Prénom du parent", type: "text" },
-        { name: "parentLastName", placeholder: "Nom du parent", type: "text" },
-        { name: "email", placeholder: "Email", type: "email" },
-        { name: "phone", placeholder: "Numéro de téléphone", type: "tel" },
+        { name: "parentFirstName", label: "Prénom du parent", type: "text" },
+        { name: "parentLastName", label: "Nom du parent", type: "text" },
+        { name: "email", label: "Email", type: "email" },
+        { name: "phone", label: "Numéro de téléphone", type: "tel" },
       ]
     },
   ];
@@ -127,35 +127,24 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
           <h3>{currentQuestion.title}</h3>
           {currentQuestion.fields.map((field, index) => (
             <div key={index} className={styles.formRow}>
+              <label htmlFor={field.name}>{field.label}</label>
               {field.type === 'textarea' ? (
                 <textarea
+                  id={field.name}
                   name={field.name}
-                  placeholder={field.placeholder}
                   value={formData[field.name]}
                   onChange={handleChange}
                   required
                 />
               ) : (
                 <input
-  type={field.type === 'date' || field.type === 'time' ? 'text' : field.type}
-  name={field.name}
-  placeholder={field.placeholder}
-  value={formData[field.name]}
-  onChange={handleChange}
-  onFocus={(e) => {
-    if (field.type === 'date' || field.type === 'time') {
-      e.target.type = field.type; // Transforme en date ou time au focus
-    }
-  }}
-  onBlur={(e) => {
-    if ((field.type === 'date' || field.type === 'time') && e.target.value === '') {
-      e.target.type = 'text'; // Retourne à text pour afficher le placeholder
-    }
-  }}
-  required
-/>
-
-
+                  id={field.name}
+                  type={field.type}
+                  name={field.name}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  required
+                />
               )}
             </div>
           ))}
