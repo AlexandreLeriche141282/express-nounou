@@ -18,7 +18,7 @@ const services = [
   { title: "Garde après l'école", image: afterSchoolImage, description: "Récupération et activités après l'école" },
   { title: "Garde du soir", image: eveningCareImage, description: "Prise en charge en soirée jusqu'au coucher" },
   { title: "Garde à la journée", image: dayCareImage, description: "Garde complète pendant toute la journée" },
-  { title: "Aide ménagère", image: housekeepingImage, description: "Entretien du domicile en plus de la garde" },
+  { title: "Aide ménagère", image: housekeepingImage, description: "Entretien du domicile" },
   { title: "Aide aux devoirs", image: homeworkHelpImage, description: "Soutien scolaire et aide aux devoirs" }
 ];
 

@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import styles from './ChildcareReservationModal.module.scss';
+import useDebounce from '../../Hooks/useDebounce';
+
+const API_KEY = 'a9463cb081434344b0a3e1e0ab8b5a33'; // Remplacez par votre clé API
 
 const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const [step, setStep] = useState(0);
@@ -7,7 +11,10 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const [formData, setFormData] = useState({
     parentFirstName: '',
     parentLastName: '',
-    childAge: '',
+    numberOfChildren: '',
+    childrenDetails: [
+      { firstName: '', lastName: '', age: '' }
+    ],
     email: '',
     phone: '',
     address: '',
@@ -18,8 +25,16 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     endTime: '',
     specialNeeds: ''
   });
+  const [addressError, setAddressError] = useState(''); // Pour afficher les erreurs de validation d'adresse
 
-  const questions = [
+  const getTomorrow = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  };
+
+  // Modifications conditionnelles en fonction du service sélectionné
+  const questions = selectedService === 'Aide ménagère' ? [
     {
       title: "Adresse",
       fields: [
@@ -29,9 +44,27 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       ]
     },
     {
-      title: "Informations sur l'enfant",
+      title: "Date et horaires de la prestation",
       fields: [
-        { name: "childAge", label: "Âge de l'enfant", type: "number" },
+        { name: "guardDate", label: "Date de prestation", type: "date" },
+        { name: "startTime", label: "Heure de début", type: "time" },
+        { name: "endTime", label: "Heure de fin", type: "time" },
+      ]
+    },
+  ] : [
+    {
+      title: "Adresse",
+      fields: [
+        { name: "address", label: "Adresse", type: "text" },
+        { name: "city", label: "Ville", type: "text" },
+        { name: "postalCode", label: "Code postal", type: "text" },
+      ]
+    },
+    {
+      title: "Informations sur les enfants",
+      fields: [
+        { name: "numberOfChildren", label: "Nombre d'enfants", type: "number" },
+        { name: "childrenDetails", label: "Détails des enfants", type: "children" }
       ]
     },
     {
@@ -59,7 +92,8 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     setFormData({
       parentFirstName: '',
       parentLastName: '',
-      childAge: '',
+      numberOfChildren: '',
+      childrenDetails: [{ firstName: '', lastName: '', age: '' }],
       email: '',
       phone: '',
       address: '',
@@ -71,6 +105,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       specialNeeds: ''
     });
     setIsNextButtonEnabled(false);
+    setAddressError('');
   };
 
   useEffect(() => {
@@ -91,10 +126,74 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     }));
   };
 
-  const isStepValid = () => {
-    const currentFields = questions[step].fields;
-    return currentFields.every(field => formData[field.name].trim() !== '');
+  const handleChildDetailsChange = (index, field, value) => {
+    const updatedChildrenDetails = [...formData.childrenDetails];
+    updatedChildrenDetails[index][field] = value;
+    setFormData(prevState => ({
+      ...prevState,
+      childrenDetails: updatedChildrenDetails
+    }));
   };
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Rayon de la Terre en kilomètres
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  const debouncedAddress = useDebounce(
+    `${formData.address}, ${formData.city}, ${formData.postalCode}`,
+    500 // 500ms de délai
+  );
+
+  useEffect(() => {
+    const validateAddressDistance = async () => {
+      if (!formData.address || !formData.city || !formData.postalCode) {
+        setIsNextButtonEnabled(isStepValid());
+        setAddressError('Veuillez remplir tous les champs d\'adresse.');
+        return;
+      }
+
+      try {
+        const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {
+          params: {
+            q: debouncedAddress,
+            key: API_KEY,
+            language: 'fr',
+            limit: 1
+          }
+        });
+
+        const results = response.data.results;
+        if (results.length > 0) {
+          const { lat, lng } = results[0].geometry;
+          const distance = calculateDistance(lat, lng, 49.0069, 2.0771); // Coordonnées d'Eragny
+          if (distance <= 30) {
+            setIsNextButtonEnabled(true);
+            setAddressError('');
+          } else {
+            setIsNextButtonEnabled(false);
+            setAddressError('L\'adresse est trop éloignée (plus de 30 km).');
+          }
+        } else {
+          setIsNextButtonEnabled(false);
+          setAddressError('Adresse invalide. Veuillez vérifier les informations.');
+        }
+      } catch (error) {
+        console.error("Erreur lors de la géolocalisation :", error);
+        setIsNextButtonEnabled(false);
+        setAddressError('Erreur lors de la vérification de l\'adresse. Veuillez réessayer.');
+      }
+    };
+
+    validateAddressDistance();
+  }, [debouncedAddress]);
 
   const handleNext = () => {
     if (isStepValid()) {
@@ -105,6 +204,40 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const handlePrevious = () => {
     setStep(prevStep => prevStep - 1);
   };
+  const renderChildrenFields = () => {
+    return formData.childrenDetails.map((child, index) => (
+      <div key={index} className={styles.formRow}>
+        <h4>Enfant {index + 1}</h4>
+        <label htmlFor={`childFirstName-${index}`}>Prénom</label>
+        <input
+          id={`childFirstName-${index}`}
+          type="text"
+          value={child.firstName}
+          onChange={(e) => handleChildDetailsChange(index, 'firstName', e.target.value)}
+          required
+        />
+  
+        <label htmlFor={`childLastName-${index}`}>Nom</label>
+        <input
+          id={`childLastName-${index}`}
+          type="text"
+          value={child.lastName}
+          onChange={(e) => handleChildDetailsChange(index, 'lastName', e.target.value)}
+          required
+        />
+  
+        <label htmlFor={`childAge-${index}`}>Âge</label>
+        <input
+          id={`childAge-${index}`}
+          type="number"
+          value={child.age}
+          onChange={(e) => handleChildDetailsChange(index, 'age', e.target.value)}
+          required
+        />
+      </div>
+    ));
+  };
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -112,6 +245,34 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       onSubmit({ service: selectedService, ...formData });
       onClose();
     }
+  };
+
+  const isStepValid = () => {
+    const currentFields = questions[step].fields;
+
+    return currentFields.every(field => {
+      const value = formData[field.name];
+
+      // Vérification pour les champs de type "children" (détails des enfants)
+      if (field.type === 'children') {
+        const childrenDetails = formData.childrenDetails;
+        return childrenDetails.every(child => 
+          child.firstName.trim() !== '' && child.lastName.trim() !== '' && child.age !== ''
+        );
+      }
+
+      // Validation des autres types de champs
+      if (typeof value === 'string') {
+        return value.trim() !== ''; // Vérification si c'est une chaîne de caractères non vide
+      }
+      if (typeof value === 'number') {
+        return !isNaN(value) && value !== ''; // Vérification pour les champs numériques
+      }
+      if (Array.isArray(value)) {
+        return value.length > 0; // Vérification pour les tableaux (enfants, par exemple)
+      }
+      return value !== '' && value !== null && value !== undefined; // Autres types
+    });
   };
 
   if (!isOpen) return null;
@@ -136,6 +297,18 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
                   onChange={handleChange}
                   required
                 />
+              ) : field.type === 'date' ? (
+                <input
+                  id={field.name}
+                  type="date"
+                  name={field.name}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  min={getTomorrow()}
+                  required
+                />
+              ) : field.type === 'children' ? (
+                renderChildrenFields()
               ) : (
                 <input
                   id={field.name}
@@ -148,6 +321,9 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
               )}
             </div>
           ))}
+          {step === 0 && addressError && (
+            <p className={styles.errorMessage}>{addressError}</p>
+          )}
           <div className={styles.formActions}>
             {step > 0 && (
               <button type="button" onClick={handlePrevious}>Précédent</button>
@@ -157,15 +333,14 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
                 type="button" 
                 onClick={handleNext} 
                 disabled={!isNextButtonEnabled}
-                className={`${styles.nextButton} ${isNextButtonEnabled ? styles.enabled : styles.disabled}`}
               >
                 Suivant
               </button>
             ) : (
-              <button 
+              <button
                 type="submit"
+                className={`submitButton ${!isNextButtonEnabled ? 'disabled' : 'enabled'}`}
                 disabled={!isNextButtonEnabled}
-                className={`${styles.submitButton} ${isNextButtonEnabled ? styles.enabled : styles.disabled}`}
               >
                 Réserver
               </button>
