@@ -1,3 +1,4 @@
+@charset "UTF-8";
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -16,8 +17,13 @@
           align-items: center;
   z-index: 1000;
 }
+.modalOverlay .errorMessage {
+  color: red; /* Définit la couleur du texte en rouge */
+  font-weight: bold; /* Optionnel : rend le texte en gras */
+}
 
 .modalContent {
+  position: relative;
   background-color: white;
   border-radius: 10px;
   width: 500px;
@@ -27,6 +33,21 @@
   -webkit-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
+}
+.modalContent .closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: rgb(231, 164, 179);
+  -webkit-transition: color 0.3s ease;
+  transition: color 0.3s ease;
+}
+.modalContent .closeButton:hover {
+  color: #FD6C9E;
 }
 .modalContent h2 {
   text-align: center;
@@ -87,7 +108,7 @@
   color: white;
 }
 .modalContent form .formActions button.nextButton.enabled:hover, .modalContent form .formActions button.submitButton.enabled:hover {
-  background-color: #218838;
+  background-color: green;
 }
 .modalContent form .formActions button.nextButton.disabled, .modalContent form .formActions button.submitButton.disabled {
   background-color: rgb(231, 164, 179);
@@ -99,7 +120,7 @@
   color: white;
 }
 .modalContent form .formActions button[type=button]:not(.nextButton):hover {
-  background-color: #c82333;
+  background-color: #FD6C9E;
 }
 
 @media (max-width: 600px) {
