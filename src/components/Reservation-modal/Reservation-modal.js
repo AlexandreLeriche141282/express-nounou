@@ -9,13 +9,13 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const [step, setStep] = useState(0);
   const [isNextButtonEnabled, setIsNextButtonEnabled] = useState(false);
   const [formData, setFormData] = useState({
-    parentFirstName: '',
-    parentLastName: '',
-    numberOfChildren: 1,
-    childrenDetails: [{ firstName: '', lastName: '', age: '' }],
+    prenomParent: '',
+    nomParent: '',
+    nombreEnfants: 1,
+    childrenDetails: [{ prenom: '', nom: '', age: '' }],
     email: '',
-    phone: '',
-    address: '',
+    telephone: '',
+    addresse: '',
     city: '',
     postalCode: '',
     guardDate: '',
@@ -24,6 +24,8 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     specialNeeds: ''
   });
   const [addressError, setAddressError] = useState('');
+  const [timeError, setTimeError] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const getTomorrow = () => {
     const tomorrow = new Date();
@@ -35,7 +37,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     {
       title: "Adresse",
       fields: [
-        { name: "address", label: "Adresse", type: "text" },
+        { name: "addresse", label: "Adresse", type: "text" },
         { name: "city", label: "Ville", type: "text" },
         { name: "postalCode", label: "Code postal", type: "text" },
       ]
@@ -44,15 +46,15 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       title: "Date et horaires de la prestation",
       fields: [
         { name: "guardDate", label: "Date de prestation", type: "date" },
-        { name: "startTime", label: "Heure de début", type: "time" },
-        { name: "endTime", label: "Heure de fin", type: "time" },
+        { name: "startTime", label: "Heure de début", type: "time", min: "05:00", max: "23:30" },
+        { name: "endTime", label: "Heure de fin", type: "time", min: "05:00", max: "23:30" },
       ]
     },
   ] : [
     {
       title: "Adresse",
       fields: [
-        { name: "address", label: "Adresse", type: "text" },
+        { name: "addresse", label: "Adresse", type: "text" },
         { name: "city", label: "Ville", type: "text" },
         { name: "postalCode", label: "Code postal", type: "text" },
       ]
@@ -60,7 +62,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     {
       title: "Informations sur les enfants",
       fields: [
-        { name: "numberOfChildren", label: "Nombre d'enfants", type: "number" },
+        { name: "nombreEnfants", label: "Nombre d'enfants", type: "number" },
         { name: "childrenDetails", label: "Détails des enfants", type: "children" }
       ]
     },
@@ -68,18 +70,18 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       title: "Date et horaires de la garde",
       fields: [
         { name: "guardDate", label: "Date de garde", type: "date" },
-        { name: "startTime", label: "Heure de début", type: "time" },
-        { name: "endTime", label: "Heure de fin", type: "time" },
-        { name: "specialNeeds", label: "Besoins spécifiques ou commentaires", type: "textarea" },
+        { name: "startTime", label: "Heure de début", type: "time", min: "05:00", max: "23:30" },
+        { name: "endTime", label: "Heure de fin", type: "time", min: "05:00", max: "23:30" },
+        { name: "specialNeeds", label: "Veuillez préciser votre besoin", type: "textarea" },
       ]
     },
     {
       title: "Informations sur le parent",
       fields: [
-        { name: "parentFirstName", label: "Prénom du parent", type: "text" },
-        { name: "parentLastName", label: "Nom du parent", type: "text" },
+        { name: "prenomParent", label: "Prénom du parent", type: "text" },
+        { name: "nomParent", label: "Nom du parent", type: "text" },
         { name: "email", label: "Email", type: "email" },
-        { name: "phone", label: "Numéro de téléphone", type: "tel" },
+        { name: "telephone", label: "Numéro de téléphone", type: "tel" },
       ]
     },
   ];
@@ -87,13 +89,13 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const resetForm = () => {
     setStep(0);
     setFormData({
-      parentFirstName: '',
-      parentLastName: '',
-      numberOfChildren: 1,
-      childrenDetails: [{ firstName: '', lastName: '', age: '' }],
+      prenomParent: '',
+      nomParent: '',
+      nombreEnfants: 1,
+      childrenDetails: [{ prenom: '', nom: '', age: '' }],
       email: '',
-      phone: '',
-      address: '',
+      telephone: '',
+      addresse: '',
       city: '',
       postalCode: '',
       guardDate: '',
@@ -103,6 +105,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     });
     setIsNextButtonEnabled(false);
     setAddressError('');
+    setTimeError('');
   };
 
   useEffect(() => {
@@ -120,17 +123,32 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       [name]: value
     }));
 
-    if (name === 'numberOfChildren') {
-      const numberOfChildren = parseInt(value, 10) || 0;
-      const updatedChildrenDetails = [...formData.childrenDetails];
-      while (updatedChildrenDetails.length < numberOfChildren) {
-        updatedChildrenDetails.push({ firstName: '', lastName: '', age: '' });
+    if (name === 'nombreEnfants') {
+      const nombreEnfants = parseInt(value, 10) || 0;
+      const updatedDetailsEnfants = [...formData.childrenDetails];
+      while (updatedDetailsEnfants.length < nombreEnfants) {
+        updatedDetailsEnfants.push({ prenom: '', nom: '', age: '' });
       }
-      updatedChildrenDetails.length = numberOfChildren;
+      updatedDetailsEnfants.length = nombreEnfants;
       setFormData(prevState => ({
         ...prevState,
-        childrenDetails: updatedChildrenDetails
+        childrenDetails: updatedDetailsEnfants
       }));
+    }
+
+    if (name === 'startTime' || name === 'endTime') {
+      validateTime(name, value);
+    }
+  };
+
+  const validateTime = (field, time) => {
+    const [hours, minutes] = time.split(':');
+    const totalMinutes = parseInt(hours) * 60 + parseInt(minutes);
+
+    if (totalMinutes < 5 * 60 || totalMinutes > 23 * 60 + 30) {
+      setTimeError(`Les horaires doivent être entre 5h00 et 23h30.`);
+    } else {
+      setTimeError('');
     }
   };
 
@@ -156,15 +174,15 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   };
 
   const validateAddressWithGeolocation = async () => {
-    const { address, city, postalCode } = formData;
-    if (!address || !city || !postalCode) {
+    const { addresse, city, postalCode } = formData;
+    if (!addresse || !city || !postalCode) {
       setAddressError("Veuillez remplir tous les champs de l'adresse.");
       return false;
     }
     try {
       const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {
         params: {
-          q: `${address}, ${city}, ${postalCode}`,
+          q: `${addresse}, ${city}, ${postalCode}`,
           key: API_KEY,
           language: 'fr',
           pretty: 1,
@@ -208,64 +226,67 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     setStep(prevStep => prevStep - 1);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isStepValid()) {
-      onSubmit({ service: selectedService, ...formData });
-      onClose();
+      try {
+        const response = await axios.post('https://formspree.io/f/xanygezw', formData);
+        if (response.status === 200) {
+          setShowConfirmation(true);
+          setTimeout(() => {
+            setShowConfirmation(false);
+            onSubmit({ service: selectedService, ...formData });
+            onClose();
+          }, 3000); // Close after 3 seconds
+        } else {
+          console.error('Erreur d\'envoi vers Formspree:', response);
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi vers Formspree:', error);
+      }
     }
   };
 
   const isStepValid = () => {
     const currentFields = questions[step].fields;
-  
     return currentFields.every(field => {
       const value = formData[field.name];
-  
-      // Spécifique pour le champ "specialNeeds" : il est non obligatoire
       if (field.name === 'specialNeeds') {
-        return true; // On le considère toujours valide, même vide
+        return true;
       }
-  
       if (field.type === 'children') {
         const childrenDetails = formData.childrenDetails;
         return childrenDetails.every(child =>
-          child.firstName.trim() !== '' && child.lastName.trim() !== '' && child.age !== ''
+          child.prenom.trim() !== '' &&
+          child.nom.trim() !== '' &&
+          child.age !== ''
         );
       }
-  
-      if (typeof value === 'string') {
-        return value.trim() !== '';
-      }
-      if (typeof value === 'number') {
-        return !isNaN(value) && value !== '';
-      }
-      if (Array.isArray(value)) {
-        return value.length > 0;
-      }
+      if (typeof value === 'string') return value.trim() !== '';
+      if (typeof value === 'number') return !isNaN(value) && value !== '';
+      if (Array.isArray(value)) return value.length > 0;
       return value !== '' && value !== null && value !== undefined;
-    });
+    }) && !timeError;
   };
-  
 
   const renderChildrenFields = () => {
-    return [...Array(Number(formData.numberOfChildren))].map((_, index) => (
+    return [...Array(Number(formData.nombreEnfants))].map((_, index) => (
       <div key={index} className={styles.formRow}>
         <h4>Enfant {index + 1}</h4>
         <label htmlFor={`childFirstName-${index}`}>Prénom</label>
         <input
           id={`childFirstName-${index}`}
           type="text"
-          value={formData.childrenDetails[index]?.firstName || ''}
-          onChange={(e) => handleChildDetailsChange(index, 'firstName', e.target.value)}
+          value={formData.childrenDetails[index]?.prenom || ''}
+          onChange={(e) => handleChildDetailsChange(index, 'prenom', e.target.value)}
           required
         />
         <label htmlFor={`childLastName-${index}`}>Nom</label>
         <input
           id={`childLastName-${index}`}
           type="text"
-          value={formData.childrenDetails[index]?.lastName || ''}
-          onChange={(e) => handleChildDetailsChange(index, 'lastName', e.target.value)}
+          value={formData.childrenDetails[index]?.nom || ''}
+          onChange={(e) => handleChildDetailsChange(index, 'nom', e.target.value)}
           required
         />
         <label htmlFor={`childAge-${index}`}>Âge</label>
@@ -289,6 +310,11 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       <div className={styles.modalContent}>
         <button className={styles.closeButton} onClick={onClose}>✖</button>
         <h2>Réservation - {selectedService}</h2>
+        {showConfirmation && (
+          <div className={styles.confirmationMessage}>
+            <p>Votre demande de réservation a bien été prise en compte !</p>
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <h3>{currentQuestion.title}</h3>
           {currentQuestion.fields.map((field, index) => (
@@ -300,7 +326,6 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
                   name={field.name}
                   value={formData[field.name]}
                   onChange={handleChange}
-                  required
                 />
               ) : field.type === 'date' ? (
                 <input
@@ -310,6 +335,17 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
                   value={formData[field.name]}
                   onChange={handleChange}
                   min={getTomorrow()}
+                  required
+                />
+              ) : field.type === 'time' ? (
+                <input
+                  id={field.name}
+                  type="time"
+                  name={field.name}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  min={field.min}
+                  max={field.max}
                   required
                 />
               ) : field.type === 'children' ? (
@@ -328,6 +364,9 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
           ))}
           {step === 0 && addressError && (
             <p className={styles.errorMessage}>{addressError}</p>
+          )}
+          {timeError && (
+            <p className={styles.errorMessage}>{timeError}</p>
           )}
           <div className={styles.formActions}>
             {step > 0 && (

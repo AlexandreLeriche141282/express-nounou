@@ -11,6 +11,10 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  .errorMessage {
+    color: red; /* Définit la couleur du texte en rouge */
+    font-weight: bold; /* Optionnel : rend le texte en gras */
+  }
 }
 
 .modalContent {
