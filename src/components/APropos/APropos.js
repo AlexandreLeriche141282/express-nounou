@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './APropos.module.scss';
-import photoCliente from '../../Assets/images/GE2.jpg'; // Assurez-vous d'avoir cette image
+import photoCliente from '../../Assets/images/GE2.avif'; // Assurez-vous d'avoir cette image
 
 
 const APropos = () => {
