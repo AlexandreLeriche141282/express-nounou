@@ -4,10 +4,12 @@ import styles from './ChildcareReservationModal.module.scss';
 
 const API_KEY = 'a9463cb081434344b0a3e1e0ab8b5a33';
 const ERAGNY_COORDINATES = { lat: 49.0139, lng: 2.1003 };
+const HOURLY_RATE = 25;
 
 const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const [step, setStep] = useState(0);
   const [isNextButtonEnabled, setIsNextButtonEnabled] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(0);
   const [formData, setFormData] = useState({
     prenomParent: '',
     nomParent: '',
@@ -21,11 +23,29 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     guardDate: '',
     startTime: '',
     endTime: '',
-    specialNeeds: ''
+    specialNeeds: '',
+    paymentMethod: '', // Nouveau champ pour la méthode de paiement
+    companyName: '', // Nouveau champ pour le nom de l'entreprise si SAP
+    siret: '' // Nouveau champ pour le numéro SIRET si SAP
   });
   const [addressError, setAddressError] = useState('');
   const [timeError, setTimeError] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const calculatePrice = (startTime, endTime) => {
+    if (!startTime || !endTime) return 0;
+    
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+    
+    const startInMinutes = startHours * 60 + startMinutes;
+    const endInMinutes = endHours * 60 + endMinutes;
+    
+    if (endInMinutes <= startInMinutes) return 0;
+    
+    const durationInHours = (endInMinutes - startInMinutes) / 60;
+    return Math.ceil(durationInHours * HOURLY_RATE);
+  };
 
   const getTomorrow = () => {
     const tomorrow = new Date();
@@ -50,6 +70,33 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
         { name: "endTime", label: "Heure de fin", type: "time", min: "05:00", max: "23:30" },
       ]
     },
+    {
+      title: "Mode de paiement",
+      fields: [
+        {
+          name: "paymentMethod",
+          label: "Choisissez votre mode de paiement",
+          type: "radio",
+          options: [
+            { value: "card", label: "Paiement par carte avant la prestation" },
+            { value: "cash", label: "Paiement en espèces après la prestation" },
+            { value: "sap", label: "Paiement en fin de mois (Entreprises SAP)" }
+          ]
+        },
+        { 
+          name: "companyName", 
+          label: "Nom de l'entreprise", 
+          type: "text",
+          condition: formData => formData.paymentMethod === 'sap'
+        },
+        { 
+          name: "siret", 
+          label: "Numéro SIRET", 
+          type: "text",
+          condition: formData => formData.paymentMethod === 'sap'
+        }
+      ]
+    }
   ] : [
     {
       title: "Adresse",
@@ -67,6 +114,15 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       ]
     },
     {
+      title: "Informations sur le parent",
+      fields: [
+        { name: "prenomParent", label: "Prénom du parent", type: "text" },
+        { name: "nomParent", label: "Nom du parent", type: "text" },
+        { name: "email", label: "Email", type: "email" },
+        { name: "telephone", label: "Numéro de téléphone", type: "tel" },
+      ]
+    },
+    {
       title: "Date et horaires de la garde",
       fields: [
         { name: "guardDate", label: "Date de garde", type: "date" },
@@ -76,12 +132,30 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       ]
     },
     {
-      title: "Informations sur le parent",
+      title: "Mode de paiement",
       fields: [
-        { name: "prenomParent", label: "Prénom du parent", type: "text" },
-        { name: "nomParent", label: "Nom du parent", type: "text" },
-        { name: "email", label: "Email", type: "email" },
-        { name: "telephone", label: "Numéro de téléphone", type: "tel" },
+        {
+          name: "paymentMethod",
+          label: "Choisissez votre mode de paiement",
+          type: "radio",
+          options: [
+            { value: "card", label: "Paiement par carte avant la prestation" },
+            { value: "cash", label: "Paiement en espèces après la prestation" },
+            { value: "sap", label: "Paiement en fin de mois (Entreprises SAP)" }
+          ]
+        },
+        { 
+          name: "companyName", 
+          label: "Nom de l'entreprise", 
+          type: "text",
+          condition: formData => formData.paymentMethod === 'sap'
+        },
+        { 
+          name: "siret", 
+          label: "Numéro SIRET", 
+          type: "text",
+          condition: formData => formData.paymentMethod === 'sap'
+        }
       ]
     },
   ];
@@ -117,10 +191,15 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   }, [formData, step]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     setFormData(prevState => ({
       ...prevState,
-      [name]: value
+      [name]: value,
+      // Réinitialiser les champs d'entreprise si le mode de paiement n'est pas SAP
+      ...(name === 'paymentMethod' && value !== 'sap' ? {
+        companyName: '',
+        siret: ''
+      } : {})
     }));
 
     if (name === 'nombreEnfants') {
@@ -138,6 +217,11 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
 
     if (name === 'startTime' || name === 'endTime') {
       validateTime(name, value);
+      const newPrice = calculatePrice(
+        name === 'startTime' ? value : formData.startTime,
+        name === 'endTime' ? value : formData.endTime
+      );
+      setTotalPrice(newPrice);
     }
   };
 
@@ -317,51 +401,83 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
         )}
         <form onSubmit={handleSubmit}>
           <h3>{currentQuestion.title}</h3>
-          {currentQuestion.fields.map((field, index) => (
-            <div key={index} className={styles.formRow}>
-              <label htmlFor={field.name}>{field.label}</label>
-              {field.type === 'textarea' ? (
-                <textarea
-                  id={field.name}
-                  name={field.name}
-                  value={formData[field.name]}
-                  onChange={handleChange}
-                />
-              ) : field.type === 'date' ? (
-                <input
-                  id={field.name}
-                  type="date"
-                  name={field.name}
-                  value={formData[field.name]}
-                  onChange={handleChange}
-                  min={getTomorrow()}
-                  required
-                />
-              ) : field.type === 'time' ? (
-                <input
-                  id={field.name}
-                  type="time"
-                  name={field.name}
-                  value={formData[field.name]}
-                  onChange={handleChange}
-                  min={field.min}
-                  max={field.max}
-                  required
-                />
-              ) : field.type === 'children' ? (
-                renderChildrenFields()
-              ) : (
-                <input
-                  id={field.name}
-                  type={field.type}
-                  name={field.name}
-                  value={formData[field.name]}
-                  onChange={handleChange}
-                  required
-                />
-              )}
+          {currentQuestion.fields.map((field, index) => {
+            // Ne pas afficher les champs conditionnels si leur condition n'est pas remplie
+            if (field.condition && !field.condition(formData)) {
+              return null;
+            }
+
+            return (
+              <div key={index} className={styles.formRow}>
+                <label htmlFor={field.name}>{field.label}</label>
+                {field.type === 'radio' ? (
+                  <div className={styles.radioGroup}>
+                    {field.options.map(option => (
+                      <div key={option.value} className={styles.radioOption}>
+                        <input
+                          type="radio"
+                          id={option.value}
+                          name={field.name}
+                          value={option.value}
+                          checked={formData[field.name] === option.value}
+                          onChange={handleChange}
+                          required
+                        />
+                        <label htmlFor={option.value}>{option.label}</label>
+                      </div>
+                    ))}
+                  </div>
+                ) : field.type === 'textarea' ? (
+                  <textarea
+                    id={field.name}
+                    name={field.name}
+                    value={formData[field.name]}
+                    onChange={handleChange}
+                  />
+                ) : field.type === 'date' ? (
+                  <input
+                    id={field.name}
+                    type="date"
+                    name={field.name}
+                    value={formData[field.name]}
+                    onChange={handleChange}
+                    min={getTomorrow()}
+                    required
+                  />
+                ) : field.type === 'time' ? (
+                  <input
+                    id={field.name}
+                    type="time"
+                    name={field.name}
+                    value={formData[field.name]}
+                    onChange={handleChange}
+                    min={field.min}
+                    max={field.max}
+                    required
+                  />
+                ) : field.type === 'children' ? (
+                  renderChildrenFields()
+                ) : (
+                  <input
+                    id={field.name}
+                    type={field.type}
+                    name={field.name}
+                    value={formData[field.name]}
+                    onChange={handleChange}
+                    required
+                  />
+                )}
+              </div>
+            );
+          })}
+          {/* Affichage du prix et des informations de paiement */}
+          {currentQuestion.fields.some(field => field.type === 'time') && formData.startTime && formData.endTime && !timeError && (
+            <div className={styles.priceInfo}>
+              <p>Tarif horaire : {HOURLY_RATE}€/heure</p>
+              <p>Prix total estimé : {totalPrice}€</p>
             </div>
-          ))}
+          )}
+          {/* Messages d'erreur */}
           {step === 0 && addressError && (
             <p className={styles.errorMessage}>{addressError}</p>
           )}

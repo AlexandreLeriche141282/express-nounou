@@ -12,8 +12,8 @@
   align-items: center;
   z-index: 1000;
   .errorMessage {
-    color: red; /* Définit la couleur du texte en rouge */
-    font-weight: bold; /* Optionnel : rend le texte en gras */
+    color: red;
+    font-weight: bold;
   }
 }
 
@@ -71,6 +71,57 @@
       }
     }
 
+    // Styles pour les boutons radio
+    .radioGroup {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 10px 0;
+
+      .radioOption {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border-radius: 5px;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: rgba($color6, 0.05);
+        }
+
+        input[type="radio"] {
+          width: 20px;
+          height: 20px;
+          margin: 0;
+          cursor: pointer;
+          accent-color: $color6;
+
+          &:checked + label {
+            color: $color6;
+            font-weight: 500;
+          }
+        }
+
+        label {
+          margin: 0;
+          cursor: pointer;
+          font-size: 1rem;
+          transition: color 0.2s ease;
+        }
+      }
+    }
+
+    // Style pour les champs conditionnels (entreprise SAP)
+    .formRow {
+      &[data-sap="true"] {
+        animation: fadeIn 0.3s ease;
+        border-left: 2px solid $color6;
+        padding-left: 10px;
+        margin-left: 10px;
+      }
+    }
+
     textarea {
       resize: vertical;
       min-height: 100px;
@@ -120,6 +171,18 @@
   }
 }
 
+// Animation pour les champs conditionnels
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 // Responsive Design
 @media (max-width: 600px) {
   .modalContent {
@@ -129,6 +192,21 @@
       input, 
       textarea {
         font-size: 0.9rem;
+      }
+
+      .radioGroup {
+        .radioOption {
+          padding: 6px;
+          
+          input[type="radio"] {
+            width: 18px;
+            height: 18px;
+          }
+
+          label {
+            font-size: 0.9rem;
+          }
+        }
       }
     }
   }
