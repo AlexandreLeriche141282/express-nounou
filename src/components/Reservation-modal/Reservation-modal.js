@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { loadStripe } from '@stripe/stripe-js';
 import styles from './ChildcareReservationModal.module.scss';
 
 const API_KEY = 'a9463cb081434344b0a3e1e0ab8b5a33';
 const ERAGNY_COORDINATES = { lat: 49.0139, lng: 2.1003 };
 const HOURLY_RATE = 25;
+const stripePromise = loadStripe('pk_test_51QaCU0D3vO200331APFyPB7HE6sL7VVyk2xLTne2Lioz6DM49rhnd4Q01ezwiCWlD7bmVCXVQ2ze1knBU66xUDi200UZm4Z6Rk');
 
 const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const [step, setStep] = useState(0);
@@ -24,9 +26,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     startTime: '',
     endTime: '',
     specialNeeds: '',
-    paymentMethod: '', // Nouveau champ pour la méthode de paiement
-    companyName: '', // Nouveau champ pour le nom de l'entreprise si SAP
-    siret: '' // Nouveau champ pour le numéro SIRET si SAP
+    paymentMethod: ''
   });
   const [addressError, setAddressError] = useState('');
   const [timeError, setTimeError] = useState('');
@@ -34,15 +34,11 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
 
   const calculatePrice = (startTime, endTime) => {
     if (!startTime || !endTime) return 0;
-    
     const [startHours, startMinutes] = startTime.split(':').map(Number);
     const [endHours, endMinutes] = endTime.split(':').map(Number);
-    
     const startInMinutes = startHours * 60 + startMinutes;
     const endInMinutes = endHours * 60 + endMinutes;
-    
     if (endInMinutes <= startInMinutes) return 0;
-    
     const durationInHours = (endInMinutes - startInMinutes) / 60;
     return Math.ceil(durationInHours * HOURLY_RATE);
   };
@@ -83,18 +79,6 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
             { value: "sap", label: "Paiement en fin de mois (Entreprises SAP)" }
           ]
         },
-        { 
-          name: "companyName", 
-          label: "Nom de l'entreprise", 
-          type: "text",
-          condition: formData => formData.paymentMethod === 'sap'
-        },
-        { 
-          name: "siret", 
-          label: "Numéro SIRET", 
-          type: "text",
-          condition: formData => formData.paymentMethod === 'sap'
-        }
       ]
     }
   ] : [
@@ -140,22 +124,9 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
           type: "radio",
           options: [
             { value: "card", label: "Paiement par carte avant la prestation" },
-            { value: "cash", label: "Paiement en espèces après la prestation" },
-            { value: "sap", label: "Paiement en fin de mois (Entreprises SAP)" }
+            { value: "cash", label: "Paiement en espèces après la prestation" }
           ]
         },
-        { 
-          name: "companyName", 
-          label: "Nom de l'entreprise", 
-          type: "text",
-          condition: formData => formData.paymentMethod === 'sap'
-        },
-        { 
-          name: "siret", 
-          label: "Numéro SIRET", 
-          type: "text",
-          condition: formData => formData.paymentMethod === 'sap'
-        }
       ]
     },
   ];
@@ -195,11 +166,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     setFormData(prevState => ({
       ...prevState,
       [name]: value,
-      // Réinitialiser les champs d'entreprise si le mode de paiement n'est pas SAP
-      ...(name === 'paymentMethod' && value !== 'sap' ? {
-        companyName: '',
-        siret: ''
-      } : {})
+      ...(name === 'paymentMethod' && value !== 'sap' ? { companyName: '', siret: '' } : {})
     }));
 
     if (name === 'nombreEnfants') {
@@ -209,10 +176,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
         updatedDetailsEnfants.push({ prenom: '', nom: '', age: '' });
       }
       updatedDetailsEnfants.length = nombreEnfants;
-      setFormData(prevState => ({
-        ...prevState,
-        childrenDetails: updatedDetailsEnfants
-      }));
+      setFormData(prevState => ({ ...prevState, childrenDetails: updatedDetailsEnfants }));
     }
 
     if (name === 'startTime' || name === 'endTime') {
@@ -228,7 +192,6 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const validateTime = (field, time) => {
     const [hours, minutes] = time.split(':');
     const totalMinutes = parseInt(hours) * 60 + parseInt(minutes);
-
     if (totalMinutes < 5 * 60 || totalMinutes > 23 * 60 + 30) {
       setTimeError(`Les horaires doivent être entre 5h00 et 23h30.`);
     } else {
@@ -239,10 +202,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const handleChildDetailsChange = (index, field, value) => {
     const updatedChildrenDetails = [...formData.childrenDetails];
     updatedChildrenDetails[index][field] = value;
-    setFormData(prevState => ({
-      ...prevState,
-      childrenDetails: updatedChildrenDetails
-    }));
+    setFormData(prevState => ({ ...prevState, childrenDetails: updatedChildrenDetails }));
   };
 
   const calculateDistance = (lat1, lng1, lat2, lng2) => {
@@ -251,8 +211,8 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     const dLat = toRadians(lat2 - lat1);
     const dLng = toRadians(lng2 - lng1);
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
-              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
@@ -263,6 +223,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       setAddressError("Veuillez remplir tous les champs de l'adresse.");
       return false;
     }
+
     try {
       const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {
         params: {
@@ -272,17 +233,22 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
           pretty: 1,
         },
       });
+
       const { results } = response.data;
       if (results && results.length > 0) {
         const { geometry } = results[0];
         const distance = calculateDistance(
-          ERAGNY_COORDINATES.lat, ERAGNY_COORDINATES.lng,
-          geometry.lat, geometry.lng
+          ERAGNY_COORDINATES.lat,
+          ERAGNY_COORDINATES.lng,
+          geometry.lat,
+          geometry.lng
         );
+
         if (distance > 30) {
           setAddressError(`L'adresse est située à ${Math.round(distance)} km d'Éragny, au-delà de la limite de 30 km.`);
           return false;
         }
+
         setAddressError('');
         return true;
       } else {
@@ -310,23 +276,59 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     setStep(prevStep => prevStep - 1);
   };
 
+  const handleStripePayment = async () => {
+    const stripe = await stripePromise;
+  
+    try {
+      const { error } = await stripe.redirectToCheckout({
+        mode: 'payment',
+        lineItems: [
+          {
+            price_data: {
+              currency: 'eur',
+              product_data: {
+                name: selectedService,  // Le nom du service
+              },
+              unit_amount: totalPrice * 100, // Le montant en centimes (totalPrice en euros multiplié par 100)
+            },
+            quantity: 1,
+          },
+        ],
+        successUrl: 'https://votre-site.com/success',  // URL de succès
+        cancelUrl: 'https://votre-site.com/cancel',    // URL d'annulation
+      });
+  
+      // Gestion des erreurs
+      if (error) {
+        console.error('Erreur lors de la redirection vers Stripe:', error);
+      }
+    } catch (error) {
+      console.error('Une erreur s\'est produite lors de la tentative de paiement:', error);
+    }
+  };
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isStepValid()) {
-      try {
-        const response = await axios.post('https://formspree.io/f/xanygezw', formData);
-        if (response.status === 200) {
-          setShowConfirmation(true);
-          setTimeout(() => {
-            setShowConfirmation(false);
-            onSubmit({ service: selectedService, ...formData });
-            onClose();
-          }, 3000); // Close after 3 seconds
-        } else {
-          console.error('Erreur d\'envoi vers Formspree:', response);
+  if (isStepValid()) {
+    if (formData.paymentMethod === 'card') {
+      await handleStripePayment();
+      } else {
+        try {
+          const response = await axios.post('https://formspree.io/f/xanygezw', formData);
+          if (response.status === 200) {
+            setShowConfirmation(true);
+            setTimeout(() => {
+              setShowConfirmation(false);
+              onSubmit({ service: selectedService, ...formData });
+              onClose();
+            }, 3000);
+          } else {
+            console.error('Erreur d\'envoi vers Formspree:', response);
+          }
+        } catch (error) {
+          console.error('Erreur lors de l\'envoi vers Formspree:', error);
         }
-      } catch (error) {
-        console.error('Erreur lors de l\'envoi vers Formspree:', error);
       }
     }
   };
@@ -402,11 +404,9 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
         <form onSubmit={handleSubmit}>
           <h3>{currentQuestion.title}</h3>
           {currentQuestion.fields.map((field, index) => {
-            // Ne pas afficher les champs conditionnels si leur condition n'est pas remplie
             if (field.condition && !field.condition(formData)) {
               return null;
             }
-
             return (
               <div key={index} className={styles.formRow}>
                 <label htmlFor={field.name}>{field.label}</label>
@@ -470,14 +470,12 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
               </div>
             );
           })}
-          {/* Affichage du prix et des informations de paiement */}
           {currentQuestion.fields.some(field => field.type === 'time') && formData.startTime && formData.endTime && !timeError && (
             <div className={styles.priceInfo}>
               <p>Tarif horaire : {HOURLY_RATE}€/heure</p>
               <p>Prix total estimé : {totalPrice}€</p>
             </div>
           )}
-          {/* Messages d'erreur */}
           {step === 0 && addressError && (
             <p className={styles.errorMessage}>{addressError}</p>
           )}
@@ -498,18 +496,19 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
               </button>
             ) : (
               <button
-                type="submit"
-                className={`submitButton ${!isNextButtonEnabled ? 'disabled' : 'enabled'}`}
-                disabled={!isNextButtonEnabled}
-              >
-                Réserver
-              </button>
+  type="submit"
+  className={`submitButton ${!isNextButtonEnabled ? 'disabled' : 'enabled'}`}
+  disabled={!isNextButtonEnabled}
+>
+  {formData.paymentMethod === 'card' ? 'Payer et Réserver' : 'Réserver'}
+</button>
             )}
           </div>
         </form>
       </div>
     </div>
   );
+  
 };
 
 export default ReservationModal;

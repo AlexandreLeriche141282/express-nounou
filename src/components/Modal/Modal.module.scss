@@ -1,0 +1,37 @@
+@import '../variables.scss';
+
+.modalOverlay {
+  position: fixed; /* Fixé sur tout l'écran */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Fond sombre semi-transparent */
+  display: flex; /* Centrage */
+  justify-content: center;
+  align-items: center;
+  z-index: 1500; /* Au-dessus des autres éléments */
+}
+
+.modalContent {
+  background: #fff; /* Fond blanc pour la modal */
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%; /* Pour une meilleure responsivité */
+  position: relative; /* Nécessaire pour positionner le bouton de fermeture */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre légère */
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+}
+
+  
