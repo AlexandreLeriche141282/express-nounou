@@ -26,7 +26,10 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     startTime: '',
     endTime: '',
     specialNeeds: '',
-    paymentMethod: ''
+    paymentMethod: '',
+    clientType: '', // Ajouter ce nouveau champ
+  companyName: '', // Pour les entreprises
+  siret: '', // Pour les entreprises
   });
   const [addressError, setAddressError] = useState('');
   const [timeError, setTimeError] = useState('');
@@ -34,14 +37,23 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
 
   const calculatePrice = (startTime, endTime) => {
     if (!startTime || !endTime) return 0;
+  
     const [startHours, startMinutes] = startTime.split(':').map(Number);
     const [endHours, endMinutes] = endTime.split(':').map(Number);
+    
     const startInMinutes = startHours * 60 + startMinutes;
     const endInMinutes = endHours * 60 + endMinutes;
+  
     if (endInMinutes <= startInMinutes) return 0;
+  
     const durationInHours = (endInMinutes - startInMinutes) / 60;
-    return Math.ceil(durationInHours * HOURLY_RATE);
+    const price = Math.ceil(durationInHours * HOURLY_RATE);
+  
+    console.log(`Start Time: ${startTime}, End Time: ${endTime}, Duration in Hours: ${durationInHours}, Price: ${price}`);
+    
+    return price;
   };
+  
 
   const getTomorrow = () => {
     const tomorrow = new Date();
@@ -91,44 +103,81 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       ]
     },
     {
-      title: "Informations sur les enfants",
-      fields: [
-        { name: "nombreEnfants", label: "Nombre d'enfants", type: "number" },
-        { name: "childrenDetails", label: "Détails des enfants", type: "children" }
-      ]
-    },
-    {
-      title: "Informations sur le parent",
-      fields: [
-        { name: "prenomParent", label: "Prénom du parent", type: "text" },
-        { name: "nomParent", label: "Nom du parent", type: "text" },
-        { name: "email", label: "Email", type: "email" },
-        { name: "telephone", label: "Numéro de téléphone", type: "tel" },
-      ]
-    },
-    {
-      title: "Date et horaires de la garde",
-      fields: [
-        { name: "guardDate", label: "Date de garde", type: "date" },
-        { name: "startTime", label: "Heure de début", type: "time", min: "05:00", max: "23:30" },
-        { name: "endTime", label: "Heure de fin", type: "time", min: "05:00", max: "23:30" },
-        { name: "specialNeeds", label: "Veuillez préciser votre besoin", type: "textarea" },
-      ]
-    },
-    {
-      title: "Mode de paiement",
+      title: "Type de client",
       fields: [
         {
-          name: "paymentMethod",
-          label: "Choisissez votre mode de paiement",
+          name: "clientType",
+          label: "Vous êtes",
           type: "radio",
           options: [
-            { value: "card", label: "Paiement par carte avant la prestation" },
-            { value: "cash", label: "Paiement en espèces après la prestation" }
+            { value: "particular", label: "Un particulier" },
+            { value: "company", label: "Une entreprise" }
           ]
-        },
+        }
       ]
     },
+    // Questions spécifiques pour les entreprises
+    ...(formData.clientType === 'company' ? [
+      {
+        title: "Informations de l'entreprise",
+        fields: [
+          { name: "companyName", label: "Nom de l'entreprise", type: "text" },
+          { name: "siret", label: "Numéro SIRET", type: "text" },
+          { name: "email", label: "Email professionnel", type: "email" },
+          { name: "telephone", label: "Numéro de téléphone", type: "tel" },
+        ]
+      },
+      {
+        title: "Date et horaires de la garde",
+        fields: [
+          { name: "guardDate", label: "Date de garde", type: "date" },
+          { name: "startTime", label: "Heure de début", type: "time", min: "05:00", max: "23:30" },
+          { name: "endTime", label: "Heure de fin", type: "time", min: "05:00", max: "23:30" },
+          { name: "specialNeeds", label: "Veuillez préciser votre besoin", type: "textarea" },
+        ]
+      }
+    ] : [
+      // Questions pour les particuliers (existantes)
+      {
+        title: "Informations sur le parent",
+        fields: [
+          { name: "prenomParent", label: "Prénom du parent", type: "text" },
+          { name: "nomParent", label: "Nom du parent", type: "text" },
+          { name: "email", label: "Email", type: "email" },
+          { name: "telephone", label: "Numéro de téléphone", type: "tel" },
+        ]
+      },
+      {
+        title: "Informations sur les enfants",
+        fields: [
+          { name: "nombreEnfants", label: "Nombre d'enfants", type: "number" },
+          { name: "childrenDetails", label: "Détails des enfants", type: "children" }
+        ]
+      },
+      {
+        title: "Date et horaires de la garde",
+        fields: [
+          { name: "guardDate", label: "Date de garde", type: "date" },
+          { name: "startTime", label: "Heure de début", type: "time", min: "05:00", max: "23:30" },
+          { name: "endTime", label: "Heure de fin", type: "time", min: "05:00", max: "23:30" },
+          { name: "specialNeeds", label: "Veuillez préciser votre besoin", type: "textarea" },
+        ]
+      },
+      {
+        title: "Mode de paiement",
+        fields: [
+          {
+            name: "paymentMethod",
+            label: "Choisissez votre mode de paiement",
+            type: "radio",
+            options: [
+              { value: "card", label: "Paiement par carte avant la prestation" },
+              { value: "cash", label: "Paiement en espèces après la prestation" }
+            ]
+          },
+        ]
+      }
+    ])
   ];
 
   const resetForm = () => {
@@ -146,7 +195,10 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       guardDate: '',
       startTime: '',
       endTime: '',
-      specialNeeds: ''
+      specialNeeds: '',
+      clientType: '',
+    companyName: '',
+    siret: '',
     });
     setIsNextButtonEnabled(false);
     setAddressError('');
@@ -162,32 +214,29 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   }, [formData, step]);
 
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
+    
     setFormData(prevState => ({
       ...prevState,
       [name]: value,
       ...(name === 'paymentMethod' && value !== 'sap' ? { companyName: '', siret: '' } : {})
     }));
-
-    if (name === 'nombreEnfants') {
-      const nombreEnfants = parseInt(value, 10) || 0;
-      const updatedDetailsEnfants = [...formData.childrenDetails];
-      while (updatedDetailsEnfants.length < nombreEnfants) {
-        updatedDetailsEnfants.push({ prenom: '', nom: '', age: '' });
-      }
-      updatedDetailsEnfants.length = nombreEnfants;
-      setFormData(prevState => ({ ...prevState, childrenDetails: updatedDetailsEnfants }));
-    }
-
+  
     if (name === 'startTime' || name === 'endTime') {
       validateTime(name, value);
+      
       const newPrice = calculatePrice(
         name === 'startTime' ? value : formData.startTime,
         name === 'endTime' ? value : formData.endTime
       );
+      
       setTotalPrice(newPrice);
+      
+      // Log the updated total price
+      console.log(`Updated Total Price: ${newPrice}`);
     }
   };
+  
 
   const validateTime = (field, time) => {
     const [hours, minutes] = time.split(':');
@@ -277,35 +326,34 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   };
 
   const handleStripePayment = async () => {
-    const stripe = await stripePromise;
-  
     try {
+      const response = await fetch('http://localhost:5000/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          serviceName: selectedService,
+          totalPrice: totalPrice,
+        }),
+      });
+      
+      const { id } = await response.json();
+      
+      const stripe = await stripePromise;
       const { error } = await stripe.redirectToCheckout({
-        mode: 'payment',
-        lineItems: [
-          {
-            price_data: {
-              currency: 'eur',
-              product_data: {
-                name: selectedService,  // Le nom du service
-              },
-              unit_amount: totalPrice * 100, // Le montant en centimes (totalPrice en euros multiplié par 100)
-            },
-            quantity: 1,
-          },
-        ],
-        successUrl: 'https://votre-site.com/success',  // URL de succès
-        cancelUrl: 'https://votre-site.com/cancel',    // URL d'annulation
+        sessionId: id
       });
   
-      // Gestion des erreurs
       if (error) {
-        console.error('Erreur lors de la redirection vers Stripe:', error);
+        console.error('Erreur Stripe:', error);
       }
     } catch (error) {
-      console.error('Une erreur s\'est produite lors de la tentative de paiement:', error);
+      console.error('Erreur paiement:', error);
     }
   };
+  
+  
   
 
   const handleSubmit = async (e) => {
