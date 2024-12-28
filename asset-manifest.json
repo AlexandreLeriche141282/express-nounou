@@ -1,26 +1,26 @@
 {
   "files": {
-    "main.css": "/express-nounou/static/css/main.39865300.css",
-    "main.js": "/express-nounou/static/js/main.144d9ecb.js",
-    "static/js/453.61ce8e36.chunk.js": "/express-nounou/static/js/453.61ce8e36.chunk.js",
-    "static/media/logo2-removebg-preview.png": "/express-nounou/static/media/logo2-removebg-preview.c7741480914781f34220.png",
-    "static/media/grade-ecole.avif": "/express-nounou/static/media/grade-ecole.9fd553c92a7d56ccf5fe.avif",
-    "static/media/aide-menage.avif": "/express-nounou/static/media/aide-menage.91993462f1dc437a9fb2.avif",
-    "static/media/garde-soir.avif": "/express-nounou/static/media/garde-soir.a431ee9ce0c2a908d393.avif",
-    "static/media/GE2.avif": "/express-nounou/static/media/GE2.4d0f14cdbe1b22353b3b.avif",
-    "static/media/gardeMatin2.avif": "/express-nounou/static/media/gardeMatin2.69c03c2728a8351b96e9.avif",
-    "static/media/logo2.avif": "/express-nounou/static/media/logo2.66ec0b830d65bee2d6c1.avif",
-    "static/media/gardeAvantEcole.avif": "/express-nounou/static/media/gardeAvantEcole.697382a8c023b2402f05.avif",
-    "static/media/grade-journee.avif": "/express-nounou/static/media/grade-journee.5b60fd3dae2eef2f30a5.avif",
-    "static/media/logoPikcel.svg": "/express-nounou/static/media/logoPikcel.e5acca1a54a0b19974929ecd21348d89.svg",
-    "static/media/grade-devoir.avif": "/express-nounou/static/media/grade-devoir.d97abd911d24a94d12a3.avif",
-    "index.html": "/express-nounou/index.html",
-    "main.39865300.css.map": "/express-nounou/static/css/main.39865300.css.map",
-    "main.144d9ecb.js.map": "/express-nounou/static/js/main.144d9ecb.js.map",
-    "453.61ce8e36.chunk.js.map": "/express-nounou/static/js/453.61ce8e36.chunk.js.map"
+    "main.css": "/static/css/main.39865300.css",
+    "main.js": "/static/js/main.0975cb66.js",
+    "static/js/453.61ce8e36.chunk.js": "/static/js/453.61ce8e36.chunk.js",
+    "static/media/logo2-removebg-preview.png": "/static/media/logo2-removebg-preview.c7741480914781f34220.png",
+    "static/media/grade-ecole.avif": "/static/media/grade-ecole.9fd553c92a7d56ccf5fe.avif",
+    "static/media/aide-menage.avif": "/static/media/aide-menage.91993462f1dc437a9fb2.avif",
+    "static/media/garde-soir.avif": "/static/media/garde-soir.a431ee9ce0c2a908d393.avif",
+    "static/media/GE2.avif": "/static/media/GE2.4d0f14cdbe1b22353b3b.avif",
+    "static/media/gardeMatin2.avif": "/static/media/gardeMatin2.69c03c2728a8351b96e9.avif",
+    "static/media/logo2.avif": "/static/media/logo2.66ec0b830d65bee2d6c1.avif",
+    "static/media/gardeAvantEcole.avif": "/static/media/gardeAvantEcole.697382a8c023b2402f05.avif",
+    "static/media/grade-journee.avif": "/static/media/grade-journee.5b60fd3dae2eef2f30a5.avif",
+    "static/media/logoPikcel.svg": "/static/media/logoPikcel.e5acca1a54a0b19974929ecd21348d89.svg",
+    "static/media/grade-devoir.avif": "/static/media/grade-devoir.d97abd911d24a94d12a3.avif",
+    "index.html": "/index.html",
+    "main.39865300.css.map": "/static/css/main.39865300.css.map",
+    "main.0975cb66.js.map": "/static/js/main.0975cb66.js.map",
+    "453.61ce8e36.chunk.js.map": "/static/js/453.61ce8e36.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.39865300.css",
-    "static/js/main.144d9ecb.js"
+    "static/js/main.0975cb66.js"
   ]
 }
