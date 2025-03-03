@@ -96,7 +96,7 @@
   
       .logoDev {
         width: auto; // Ajustez la largeur selon vos besoins
-        height: 30px; // Ajustez la hauteur selon vos besoins
+        height: 35px; // Ajustez la hauteur selon vos besoins
         margin-right: 10px; // Espace entre le logo et le texte
         max-width:100%; // Assurez-vous que le logo ne dépasse pas la largeur de son conteneur
       }
@@ -104,6 +104,7 @@
       .devText {
         font-size: 1rem; // Ajustez la taille du texte selon vos besoins
         color: #6c757d; // Couleur du texte pour le développeur
+        padding-right: 10px;
       }
      }
   }

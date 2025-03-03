@@ -166,12 +166,24 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
         ]
       },
       {
-        title: "Date et horaires de la garde",
+        title: "Date et durée de la garde",
         fields: [
           { name: "guardDate", label: "Date de garde", type: "date" },
+          {
+            name: "durationInMinutes", 
+            label: "Durée de la garde (en minutes)", 
+            type: "number",
+            min: 30,
+            max: 720,
+            step: 30
+          }
+        ]
+      },
+      {
+        title: "Horaires de la garde",
+        fields: [
           { name: "startTime", label: "Heure de début", type: "time", min: "05:00", max: "23:30" },
           { name: "endTime", label: "Heure de fin", type: "time", min: "05:00", max: "23:30" },
-          { name: "specialNeeds", label: "Veuillez préciser votre besoin", type: "textarea" },
         ]
       },
       {
@@ -231,20 +243,23 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'guardDate') {
-      const [day, month, year] = value.split('/');
-      const isoDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-      setFormData(prevState => ({
-        ...prevState,
-        [name]: value,
-        guardDateISO: isoDate
-      }));
-    } else {
-      setFormData(prevState => ({
-        ...prevState,
-        [name]: value,
-        ...(name === 'paymentMethod' && value !== 'sap' ? { companyName: '', siret: '' } : {})
-      }));
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  
+    if (name === 'durationInMinutes' || name === 'startTime') {
+      if (formData.startTime && value) {
+        const [hours, minutes] = formData.startTime.split(':');
+        const startDate = new Date(2000, 0, 1, hours, minutes);
+        const endDate = new Date(startDate.getTime() + parseInt(formData.durationInMinutes || value) * 60000);
+        const endTime = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
+        
+        setFormData(prevState => ({
+          ...prevState,
+          endTime: endTime
+        }));
+      }
     }
 
     if (name === 'startTime' || name === 'endTime') {
@@ -352,32 +367,65 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
 
   const handleStripePayment = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          serviceName: selectedService,
-          totalPrice: totalPrice,
-          ...formData, // Inclure toutes les données du formulaire
-        }),
-      });
+      // Calculez la durée en minutes
+      const [startHours, startMinutes] = formData.startTime.split(':');
+      const [endHours, endMinutes] = formData.endTime.split(':');
+      const startTotalMinutes = parseInt(startHours) * 60 + parseInt(startMinutes);
+      const endTotalMinutes = parseInt(endHours) * 60 + parseInt(endMinutes);
+      const durationInMinutes = endTotalMinutes - startTotalMinutes;
   
-      const { id } = await response.json();
-  
-      const stripe = await stripePromise;
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: id
-      });
-  
-      if (error) {
-        console.error('Erreur Stripe:', error);
+      // Sélectionnez le lien de paiement approprié en fonction de la durée
+      let paymentLink;
+      switch (durationInMinutes) {
+        case 30:
+          paymentLink = 'https://buy.stripe.com/dR63cvbr06wVfFm7ss';
+          break;
+        case 60:
+          paymentLink = 'https://buy.stripe.com/14kdR98eOdZnfFm289';
+          break;
+        case 90:
+          paymentLink = 'https://buy.stripe.com/7sI28rdz83kJ1OweUW';
+          break;
+        case 120:
+          paymentLink = 'https://buy.stripe.com/dR64gzdz8aNb50IbIL';
+          break;
+        case 150:
+          paymentLink = 'https://buy.stripe.com/fZeeVd52C8F3bp6dQU';
+          break;
+        case 180:
+          paymentLink = 'https://buy.stripe.com/4gw7sLamW2gF0KscMR';
+          break;
+        case 210:
+          paymentLink = 'https://buy.stripe.com/6oE28rfHg5sRgJq14a';
+          break;
+        case 240:
+          paymentLink = 'https://buy.stripe.com/aEUfZh1Qq1cBgJq7sz';
+          break;
+        case 270:
+          paymentLink = 'https://buy.stripe.com/3cs3cv8eO4oNeBi9AI';
+          break;
+        case 300:
+          paymentLink = 'https://buy.stripe.com/4gweVd2Uu8F3bp68wF';
+          break;
+        case 330:
+          paymentLink = 'https://buy.stripe.com/00g7sL3Yy9J7gJq3cn';
+          break;
+        case 360:
+          paymentLink = 'https://buy.stripe.com/28o5kDbr08F3ctaeV6';
+          break;
+        // Ajoutez d'autres cas pour les différentes durées
+        default:
+          throw new Error('Durée non prise en charge');
       }
+  
+      // Redirigez l'utilisateur vers le lien de paiement Stripe
+      window.location.href = paymentLink;
     } catch (error) {
-      console.error('Erreur paiement:', error);
+      console.error('Une erreur s\'est produite lors de la redirection vers le paiement:', error);
     }
   };
+  
+  
   
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -558,7 +606,16 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
                       }}
                       min={getTomorrow()}
                       required
-                    />
+                        />
+                        <input
+  id="durationInMinutes"
+  type="number"
+  name="durationInMinutes"
+  placeholder="Durée en minutes (par tranche de 30 minutes)"
+  min={30}
+  max={720}
+  step={30}
+/>
                     <span>{formData[field.name]}</span>
                   </div>
                 ) : field.type === 'time' ? (

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './Footer.module.scss';
-import logoDev from '../../Assets/images/logoPikcel.svg';
+import logoDev from '../../Assets/images/logoPikcel2.svg';
 import logo from '../../Assets/logo2-removebg-preview.png';
 import Modal from '../Modal/Modal';
 
@@ -44,9 +44,13 @@ const Footer = () => {
       <div className={styles.footerBottom}>
         <p>&copy; {new Date().getFullYear()} Express Nounou. Tous droits réservés.</p>
         <div className={styles.devInfo}>
-          <span className={styles.devText}>Site réalisé par </span>
-          <img src={logoDev} alt="Logo du développeur" className={styles.logoDev} />
-        </div>
+  <span className={styles.devText}>Site réalisé par </span>
+  <a href="https://www.pikcel.fr" target="_blank" rel="noopener noreferrer">
+    <img src={logoDev} alt="logo de l'agence Pikcel, agence web à Denain et Valenciennes, création de sites internet" className={styles.logoDev} />
+  </a>
+</div>
+
+
       </div>
       <Modal isOpen={isModalOpen} onClose={closeModal}>
   <h2>Mentions Légales</h2>

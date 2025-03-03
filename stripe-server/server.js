@@ -1,60 +1,73 @@
-// Importation des dépendances
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+// const express = require('express');
+// const cors = require('cors');
+// require('dotenv').config();
+// const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-const app = express();
+// const app = express();
 
-// Middleware
-app.use(express.json());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000' // Ajustez selon votre frontend
-}));
+// // Configuration CORS plus complète
+// const corsOptions = {
+//     origin: ['https://www.expressnounou.fr', 'https://expressnounou.fr'],
+//     methods: ['GET', 'POST', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//     credentials: true,
+//     preflightContinue: false,
+//     optionsSuccessStatus: 204
+// };
 
-// Route pour créer une session de paiement
-app.post('/api/create-checkout-session', async (req, res) => {
-  try {
-    const { serviceName, totalPrice } = req.body;
+// // Appliquer CORS globalement
+// app.use(cors(corsOptions));
 
-    if (!serviceName || !totalPrice) {
-      return res.status(400).json({ 
-        error: 'serviceName et totalPrice sont requis' 
-      });
-    }
+// // Middleware pour parser le JSON
+// app.use(express.json());
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: serviceName,
-            },
-            unit_amount: Math.round(totalPrice * 100), // Conversion en centimes
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/success`,
-      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/cancel`,
-    });
+// // Route pour créer une session de paiement
+// app.post('/api/create-checkout-session', async (req, res) => {
+//     try {
+//         const { serviceName, totalPrice } = req.body;
 
-    res.json({ id: session.id });
-  } catch (error) {
-    console.error('Erreur création session Stripe:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
+//         if (!serviceName || !totalPrice) {
+//             return res.status(400).json({ error: 'serviceName et totalPrice sont requis' });
+//         }
 
-// Route de test
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Server is running!' });
-});
+//         const session = await stripe.checkout.sessions.create({
+//             payment_method_types: ['card'],
+//             line_items: [
+//                 {
+//                     price_data: {
+//                         currency: 'eur',
+//                         product_data: {
+//                             name: serviceName,
+//                         },
+//                         unit_amount: Math.round(totalPrice * 100),
+//                     },
+//                     quantity: 1,
+//                 },
+//             ],
+//             mode: 'payment',
+//             success_url: `${process.env.FRONTEND_URL}/success`,
+//             cancel_url: `${process.env.FRONTEND_URL}/cancel`,
+//         });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+//         // Ajouter des headers spécifiques pour la réponse
+//         res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+//         res.setHeader('Access-Control-Allow-Credentials', 'true');
+//         res.json({ id: session.id });
+//     } catch (error) {
+//         console.error('Erreur création session Stripe:', error);
+//         res.status(500).json({ error: error.message });
+//     }
+// });
+
+// // Route de test
+// app.get('/api/test', (req, res) => {
+//     res.json({ message: 'Server is running!' });
+// });
+
+// // Pas besoin de cette ligne car cors() est déjà configuré globalement
+// // app.options('/api/create-checkout-session', cors());
+
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => {
+//     console.log(`Server running on port ${PORT}`);
+// });

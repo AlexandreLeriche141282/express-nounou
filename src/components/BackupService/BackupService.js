@@ -8,11 +8,43 @@ const BackupService = () => {
     company: '',
     message: ''
   });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Ajoutez ici la logique d'envoi du formulaire
+    setIsSubmitting(true);
+    
+    // Envoi des données au serveur Formspree
+    try {
+      const response = await fetch('https://formspree.io/f/xvggayvz', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        setSubmissionStatus('Votre message a été envoyé avec succès !');
+        // Réinitialiser le formulaire
+        setFormData({
+          name: '',
+          email: '',
+          company: '',
+          message: ''
+        });
+      } else {
+        setSubmissionStatus('Une erreur est survenue. Veuillez réessayer.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du formulaire:', error);
+      setSubmissionStatus('Une erreur est survenue. Veuillez réessayer.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -27,45 +59,29 @@ const BackupService = () => {
     <div className={styles.container} id="entreprises-sap">
       <div className={styles.header}>
         <h2>Fiche de contact pour les entreprises SAP</h2>
-        <div className={styles.features}>
-          <div className={styles.featureItem}>
-            <div className={styles.dot}></div>
-            <span className={styles.featureText}>Service de garde d'enfants</span>
-          </div>
-          <div className={styles.featureItem}>
-            <div className={styles.dot}></div>
-            <span className={styles.featureText}>Intervention rapide</span>
-          </div>
-          <div className={styles.featureItem}>
-            <div className={styles.dot}></div>
-            <span className={styles.featureText}>Éragny et alentours (30km)</span>
-          </div>
-        </div>
+        {/* Autres éléments */}
       </div>
 
       <div className={styles.card}>
         <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.formGrid}>
-            <input
-              type="text"
-              name="name"
-              placeholder="Nom"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className={styles.input}
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email professionnel"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className={styles.input}
-            />
-          </div>
-          
+          <input
+            type="text"
+            name="name"
+            placeholder="Nom"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className={styles.input}
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email professionnel"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className={styles.input}
+          />
           <input
             type="text"
             name="company"
@@ -75,7 +91,6 @@ const BackupService = () => {
             required
             className={styles.input}
           />
-          
           <textarea
             name="message"
             placeholder="Votre message"
@@ -85,10 +100,12 @@ const BackupService = () => {
             className={styles.textarea}
           />
           
-          <button type="submit" className={styles.button}>
-            Envoyer la demande
+          <button type="submit" className={styles.button} disabled={isSubmitting}>
+            {isSubmitting ? 'Envoi en cours...' : 'Envoyer la demande'}
           </button>
         </form>
+        
+        {submissionStatus && <p>{submissionStatus}</p>}
       </div>
     </div>
   );
