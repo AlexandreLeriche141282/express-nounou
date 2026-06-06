@@ -5,7 +5,7 @@ import styles from './ChildcareReservationModal.module.scss';
 import emailjs from 'emailjs-com';
 
 
-const API_KEY = 'a9463cb081434344b0a3e1e0ab8b5a33';
+const API_KEY = '4468c4b7d849402486dcf4fba366d260';
 const ERAGNY_COORDINATES = { lat: 49.0139, lng: 2.1003 };
 const HOURLY_RATE = 25;
 const stripePromise = loadStripe('pk_test_51QaCU0D3vO200331APFyPB7HE6sL7VVyk2xLTne2Lioz6DM49rhnd4Q01ezwiCWlD7bmVCXVQ2ze1knBU66xUDi200UZm4Z6Rk');
