@@ -1,26 +1,26 @@
 {
   "files": {
-    "main.css": "/express-nounou/static/css/main.16580a54.css",
-    "main.js": "/express-nounou/static/js/main.a0465ce2.js",
-    "static/js/453.61ce8e36.chunk.js": "/express-nounou/static/js/453.61ce8e36.chunk.js",
-    "static/media/logo2-removebg-preview.png": "/express-nounou/static/media/logo2-removebg-preview.c7741480914781f34220.png",
-    "static/media/grade-ecole.avif": "/express-nounou/static/media/grade-ecole.9fd553c92a7d56ccf5fe.avif",
-    "static/media/aide-menage.avif": "/express-nounou/static/media/aide-menage.91993462f1dc437a9fb2.avif",
-    "static/media/garde-soir.avif": "/express-nounou/static/media/garde-soir.a431ee9ce0c2a908d393.avif",
-    "static/media/GE2.avif": "/express-nounou/static/media/GE2.4d0f14cdbe1b22353b3b.avif",
-    "static/media/gardeMatin2.avif": "/express-nounou/static/media/gardeMatin2.69c03c2728a8351b96e9.avif",
-    "static/media/logo2.avif": "/express-nounou/static/media/logo2.66ec0b830d65bee2d6c1.avif",
-    "static/media/gardeAvantEcole.avif": "/express-nounou/static/media/gardeAvantEcole.697382a8c023b2402f05.avif",
-    "static/media/grade-journee.avif": "/express-nounou/static/media/grade-journee.5b60fd3dae2eef2f30a5.avif",
-    "static/media/logoPikcel2.svg": "/express-nounou/static/media/logoPikcel2.df08f060b50136605e2b4f8b28284450.svg",
-    "static/media/grade-devoir.avif": "/express-nounou/static/media/grade-devoir.d97abd911d24a94d12a3.avif",
-    "index.html": "/express-nounou/index.html",
-    "main.16580a54.css.map": "/express-nounou/static/css/main.16580a54.css.map",
-    "main.a0465ce2.js.map": "/express-nounou/static/js/main.a0465ce2.js.map",
-    "453.61ce8e36.chunk.js.map": "/express-nounou/static/js/453.61ce8e36.chunk.js.map"
+    "main.css": "/static/css/main.f58220cd.css",
+    "main.js": "/static/js/main.f499f6e4.js",
+    "static/js/453.47f545ce.chunk.js": "/static/js/453.47f545ce.chunk.js",
+    "static/media/garde-avant-ecole.png": "/static/media/garde-avant-ecole.54143fe39b03c29ea083.png",
+    "static/media/Garde-matin.png": "/static/media/Garde-matin.bc7188b1c24025bd7e85.png",
+    "static/media/garde-enfant-acceuil.jpg": "/static/media/garde-enfant-acceuil.078bae8ba5b49d3f11cc.jpg",
+    "static/media/grade-ecole.avif": "/static/media/grade-ecole.9fd553c92a7d56ccf5fe.avif",
+    "static/media/logo-nounou-chou-express.webp": "/static/media/logo-nounou-chou-express.489a79f0398aafde3afa.webp",
+    "static/media/aide-menage.avif": "/static/media/aide-menage.91993462f1dc437a9fb2.avif",
+    "static/media/logo2.webp.webp": "/static/media/logo2.webp.af5072f221341b16954e.webp",
+    "static/media/garde-soir.avif": "/static/media/garde-soir.a431ee9ce0c2a908d393.avif",
+    "static/media/grade-journee.avif": "/static/media/grade-journee.5b60fd3dae2eef2f30a5.avif",
+    "static/media/logoPikcel2.svg": "/static/media/logoPikcel2.582c7e5d3fdd0dc3954493a497139202.svg",
+    "static/media/grade-devoir.avif": "/static/media/grade-devoir.d97abd911d24a94d12a3.avif",
+    "index.html": "/index.html",
+    "main.f58220cd.css.map": "/static/css/main.f58220cd.css.map",
+    "main.f499f6e4.js.map": "/static/js/main.f499f6e4.js.map",
+    "453.47f545ce.chunk.js.map": "/static/js/453.47f545ce.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.16580a54.css",
-    "static/js/main.a0465ce2.js"
+    "static/css/main.f58220cd.css",
+    "static/js/main.f499f6e4.js"
   ]
 }
