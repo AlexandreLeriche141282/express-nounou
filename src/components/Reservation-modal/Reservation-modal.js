@@ -1,14 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { loadStripe } from '@stripe/stripe-js';
 import styles from './ChildcareReservationModal.module.scss';
 import emailjs from 'emailjs-com';
+import { SERVICE_RADIUS_KM } from '../../config/serviceArea';
 
 
 const API_KEY = '4468c4b7d849402486dcf4fba366d260';
 const ERAGNY_COORDINATES = { lat: 49.0139, lng: 2.1003 };
-const HOURLY_RATE = 25;
-const stripePromise = loadStripe('pk_test_51QaCU0D3vO200331APFyPB7HE6sL7VVyk2xLTne2Lioz6DM49rhnd4Q01ezwiCWlD7bmVCXVQ2ze1knBU66xUDi200UZm4Z6Rk');
+const HOURLY_RATE = 29.99;
+const MIN_CHILD_AGE = 3;
+const MIN_TIME = '06:00';
+const MAX_TIME = '23:00';
+const MIN_TIME_MINUTES = 6 * 60;
+const MAX_TIME_MINUTES = 23 * 60;
+const TOMORROW_BOOKING_CUTOFF_HOUR = 17;
+const SAME_DAY_MIN_HOURS_AHEAD = 5;
+
+const formatPrice = (price) => price.toFixed(2).replace('.', ',');
+
+const PAYMENT_STEP = {
+  title: 'Paiement',
+  type: 'payment',
+  fields: [],
+};
 
 const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const [step, setStep] = useState(0);
@@ -28,15 +42,18 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     startTime: '',
     endTime: '',
     specialNeeds: '',
-    paymentMethod: '',
-    clientType: '', // Ajouter ce nouveau champ
-    companyName: '', // Pour les entreprises
-    siret: '', // Pour les entreprises
+    clientType: '',
+    companyName: '',
+    siret: '',
     totalPrice: 0,
   });
   const [addressError, setAddressError] = useState('');
   const [timeError, setTimeError] = useState('');
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [dateError, setDateError] = useState('');
+  const [ageError, setAgeError] = useState('');
+  const [reservationValidated, setReservationValidated] = useState(false);
+  const [isSubmittingReservation, setIsSubmittingReservation] = useState(false);
+  const [reservationError, setReservationError] = useState('');
 
   const calculatePrice = (startTime, endTime) => {
     if (!startTime || !endTime) return 0;
@@ -58,10 +75,96 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
   };
 
 
-  const getTomorrow = () => {
+  const toLocalISODate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const parseISODate = (isoDate) => {
+    const [year, month, day] = isoDate.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  const isSunday = (isoDate) => parseISODate(isoDate).getDay() === 0;
+
+  const getTodayISO = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return toLocalISODate(today);
+  };
+
+  const getTomorrowISO = () => {
     const tomorrow = new Date();
+    tomorrow.setHours(0, 0, 0, 0);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
+    return toLocalISODate(tomorrow);
+  };
+
+  const getMinBookingDateISO = () => {
+    const minDate = new Date();
+    minDate.setHours(0, 0, 0, 0);
+    if (minDate.getDay() === 0) {
+      minDate.setDate(minDate.getDate() + 1);
+    }
+    return toLocalISODate(minDate);
+  };
+
+  const validateGuardDate = (isoDate) => {
+    if (!isoDate) {
+      setDateError('');
+      return false;
+    }
+
+    if (isSunday(isoDate)) {
+      setDateError('Les réservations ne sont pas possibles le dimanche.');
+      return false;
+    }
+
+    const todayISO = getTodayISO();
+    const tomorrowISO = getTomorrowISO();
+    const selected = parseISODate(isoDate);
+    const today = parseISODate(todayISO);
+    selected.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    if (selected < today) {
+      setDateError('La date sélectionnée est passée.');
+      return false;
+    }
+
+    if (isoDate === tomorrowISO) {
+      const now = new Date();
+      if (now.getHours() >= TOMORROW_BOOKING_CUTOFF_HOUR) {
+        setDateError('La réservation pour demain est possible jusqu\'à 17h.');
+        return false;
+      }
+    }
+
+    setDateError('');
+    return true;
+  };
+
+  const validateSameDayStartTime = (isoDate, startTime) => {
+    if (!isoDate || !startTime || isoDate !== getTodayISO()) {
+      return true;
+    }
+
+    const now = new Date();
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const startDateTime = new Date();
+    startDateTime.setHours(hours, minutes, 0, 0);
+    const minStartTime = new Date(now.getTime() + SAME_DAY_MIN_HOURS_AHEAD * 60 * 60 * 1000);
+
+    if (startDateTime < minStartTime) {
+      setTimeError(
+        `Pour une garde le jour même, la réservation doit être faite au minimum ${SAME_DAY_MIN_HOURS_AHEAD} heures avant le début de la garde.`
+      );
+      return false;
+    }
+
+    return true;
   };
 
   const formatDate = (dateString) => {
@@ -85,25 +188,11 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       title: "Date et horaires de la prestation",
       fields: [
         { name: "guardDate", label: "Date de prestation", type: "date" },
-        { name: "startTime", label: "Heure de début", type: "time", min: "05:00", max: "23:30" },
-        { name: "endTime", label: "Heure de fin", type: "time", min: "05:00", max: "23:30" },
+        { name: "startTime", label: "Heure de début", type: "time", min: MIN_TIME, max: MAX_TIME },
+        { name: "endTime", label: "Heure de fin", type: "time", min: MIN_TIME, max: MAX_TIME },
       ]
     },
-    {
-      title: "Mode de paiement",
-      fields: [
-        {
-          name: "paymentMethod",
-          label: "Choisissez votre mode de paiement",
-          type: "radio",
-          options: [
-            { value: "card", label: "Paiement par carte avant la prestation" },
-            { value: "cash", label: "Paiement en espèces après la prestation" },
-            { value: "sap", label: "Paiement en fin de mois (Entreprises SAP)" }
-          ]
-        },
-      ]
-    }
+    PAYMENT_STEP,
   ] : [
     {
       title: "Adresse",
@@ -127,7 +216,6 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
         }
       ]
     },
-    // Questions spécifiques pour les entreprises
     ...(formData.clientType === 'company' ? [
       {
         title: "Informations de l'entreprise",
@@ -142,13 +230,13 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
         title: "Date et horaires de la garde",
         fields: [
           { name: "guardDate", label: "Date de garde", type: "date" },
-          { name: "startTime", label: "Heure de début", type: "time", min: "05:00", max: "23:30" },
-          { name: "endTime", label: "Heure de fin", type: "time", min: "05:00", max: "23:30" },
+          { name: "startTime", label: "Heure de début", type: "time", min: MIN_TIME, max: MAX_TIME },
+          { name: "endTime", label: "Heure de fin", type: "time", min: MIN_TIME, max: MAX_TIME },
           { name: "specialNeeds", label: "Veuillez préciser votre besoin", type: "textarea" },
         ]
-      }
+      },
+      PAYMENT_STEP,
     ] : [
-      // Questions pour les particuliers (existantes)
       {
         title: "Informations sur le parent",
         fields: [
@@ -170,8 +258,8 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
         fields: [
           { name: "guardDate", label: "Date de garde", type: "date" },
           {
-            name: "durationInMinutes", 
-            label: "Durée de la garde (en minutes)", 
+            name: "durationInMinutes",
+            label: "Durée de la garde (en minutes)",
             type: "number",
             min: 30,
             max: 720,
@@ -182,24 +270,11 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       {
         title: "Horaires de la garde",
         fields: [
-          { name: "startTime", label: "Heure de début", type: "time", min: "05:00", max: "23:30" },
-          { name: "endTime", label: "Heure de fin", type: "time", min: "05:00", max: "23:30" },
+          { name: "startTime", label: "Heure de début", type: "time", min: MIN_TIME, max: MAX_TIME },
+          { name: "endTime", label: "Heure de fin", type: "time", min: MIN_TIME, max: MAX_TIME },
         ]
       },
-      {
-        title: "Mode de paiement",
-        fields: [
-          {
-            name: "paymentMethod",
-            label: "Choisissez votre mode de paiement",
-            type: "radio",
-            options: [
-              { value: "card", label: "Paiement par carte avant la prestation" },
-              { value: "cash", label: "Paiement en espèces après la prestation" }
-            ]
-          },
-        ]
-      }
+      PAYMENT_STEP,
     ])
   ];
 
@@ -223,9 +298,15 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       companyName: '',
       siret: '',
     });
+    setTotalPrice(0);
     setIsNextButtonEnabled(false);
     setAddressError('');
     setTimeError('');
+    setDateError('');
+    setAgeError('');
+    setReservationValidated(false);
+    setIsSubmittingReservation(false);
+    setReservationError('');
   };
 
   useEffect(() => {
@@ -234,27 +315,49 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
 
   useEffect(() => {
     setIsNextButtonEnabled(isStepValid());
-  }, [formData, step]);
+  }, [formData, step, dateError, timeError, ageError]);
 
   useEffect(() => {
-    emailjs.init("SPeSZLBDJLWstqlcr");
+    emailjs.init("6DJEMOzCfQsfBentq");
   }, []);
 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Synchroniser childrenDetails quand nombreEnfants change
+    if (name === 'nombreEnfants') {
+      const count = parseInt(value);
+
+      // Permettre la saisie vide temporairement (quand l'utilisateur efface le champ)
+      if (value === '' || isNaN(count)) {
+        setFormData(prevState => ({ ...prevState, nombreEnfants: '' }));
+        return;
+      }
+
+      const validCount = Math.max(1, Math.min(10, count));
+      setFormData(prevState => {
+        const existingDetails = prevState.childrenDetails || [];
+        const updatedDetails = [...Array(validCount)].map((_, i) =>
+          existingDetails[i] || { prenom: '', nom: '', age: '' }
+        );
+        return { ...prevState, nombreEnfants: validCount, childrenDetails: updatedDetails };
+      });
+      return;
+    }
+
     setFormData(prevState => ({
       ...prevState,
       [name]: value
     }));
-  
+
     if (name === 'durationInMinutes' || name === 'startTime') {
       if (formData.startTime && value) {
         const [hours, minutes] = formData.startTime.split(':');
         const startDate = new Date(2000, 0, 1, hours, minutes);
         const endDate = new Date(startDate.getTime() + parseInt(formData.durationInMinutes || value) * 60000);
         const endTime = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
-        
+
         setFormData(prevState => ({
           ...prevState,
           endTime: endTime
@@ -271,27 +374,56 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       );
 
       setTotalPrice(newPrice);
-
-      // Log the updated total price
       console.log(`Updated Total Price: ${newPrice}`);
     }
   };
 
 
   const validateTime = (field, time) => {
-    const [hours, minutes] = time.split(':');
-    const totalMinutes = parseInt(hours) * 60 + parseInt(minutes);
-    if (totalMinutes < 5 * 60 || totalMinutes > 23 * 60 + 30) {
-      setTimeError(`Les horaires doivent être entre 5h00 et 23h30.`);
-    } else {
-      setTimeError('');
+    const startTime = field === 'startTime' ? time : formData.startTime;
+    const endTime = field === 'endTime' ? time : formData.endTime;
+
+    if (startTime) {
+      const [startHours, startMinutes] = startTime.split(':');
+      const startTotalMinutes = parseInt(startHours, 10) * 60 + parseInt(startMinutes, 10);
+      if (startTotalMinutes < MIN_TIME_MINUTES || startTotalMinutes > MAX_TIME_MINUTES) {
+        setTimeError('Les horaires doivent être entre 6h00 et 23h00.');
+        return;
+      }
     }
+
+    if (endTime) {
+      const [endHours, endMinutes] = endTime.split(':');
+      const endTotalMinutes = parseInt(endHours, 10) * 60 + parseInt(endMinutes, 10);
+      if (endTotalMinutes < MIN_TIME_MINUTES || endTotalMinutes > MAX_TIME_MINUTES) {
+        setTimeError('Les horaires doivent être entre 6h00 et 23h00.');
+        return;
+      }
+    }
+
+    if (formData.guardDateISO && startTime && !validateSameDayStartTime(formData.guardDateISO, startTime)) {
+      return;
+    }
+
+    setTimeError('');
   };
 
   const handleChildDetailsChange = (index, field, value) => {
     const updatedChildrenDetails = [...formData.childrenDetails];
+    if (!updatedChildrenDetails[index]) {
+      updatedChildrenDetails[index] = { prenom: '', nom: '', age: '' };
+    }
     updatedChildrenDetails[index][field] = value;
     setFormData(prevState => ({ ...prevState, childrenDetails: updatedChildrenDetails }));
+
+    if (field === 'age') {
+      const age = parseInt(value, 10);
+      if (value !== '' && (!Number.isNaN(age) && age < MIN_CHILD_AGE)) {
+        setAgeError(`L'âge minimum accepté est de ${MIN_CHILD_AGE} ans.`);
+      } else {
+        setAgeError('');
+      }
+    }
   };
 
   const calculateDistance = (lat1, lng1, lat2, lng2) => {
@@ -333,8 +465,8 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
           geometry.lng
         );
 
-        if (distance > 30) {
-          setAddressError(`L'adresse est située à ${Math.round(distance)} km d'Éragny, au-delà de la limite de 30 km.`);
+        if (distance > SERVICE_RADIUS_KM) {
+          setAddressError(`L'adresse est située à ${Math.round(distance)} km d'Éragny, au-delà de la limite de ${SERVICE_RADIUS_KM} km.`);
           return false;
         }
 
@@ -356,129 +488,147 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       const isAddressValid = await validateAddressWithGeolocation();
       if (!isAddressValid) return;
     }
+
+    const currentQuestion = questions[step];
+    const hasDateField = currentQuestion.fields?.some((field) => field.type === 'date');
+    if (hasDateField && formData.guardDateISO) {
+      if (!validateGuardDate(formData.guardDateISO)) return;
+    }
+
+    const hasTimeField = currentQuestion.fields?.some((field) => field.type === 'time');
+    if (hasTimeField && formData.guardDateISO && formData.startTime) {
+      if (!validateSameDayStartTime(formData.guardDateISO, formData.startTime)) return;
+    }
+
     if (isStepValid()) {
       setStep(prevStep => prevStep + 1);
     }
   };
 
   const handlePrevious = () => {
+    if (questions[step]?.type === 'payment') {
+      setReservationValidated(false);
+      setReservationError('');
+    }
     setStep(prevStep => prevStep - 1);
   };
 
   const handleStripePayment = async () => {
     try {
-      // Calculez la durée en minutes
       const [startHours, startMinutes] = formData.startTime.split(':');
       const [endHours, endMinutes] = formData.endTime.split(':');
       const startTotalMinutes = parseInt(startHours) * 60 + parseInt(startMinutes);
       const endTotalMinutes = parseInt(endHours) * 60 + parseInt(endMinutes);
       const durationInMinutes = endTotalMinutes - startTotalMinutes;
-  
-      // Sélectionnez le lien de paiement approprié en fonction de la durée
+
       let paymentLink;
       switch (durationInMinutes) {
         case 30:
-          paymentLink = 'https://buy.stripe.com/dR63cvbr06wVfFm7ss';
+          paymentLink = 'https://buy.stripe.com/bJe5kD0JKbejex0ed12Nq0d';
           break;
         case 60:
-          paymentLink = 'https://buy.stripe.com/14kdR98eOdZnfFm289';
+          paymentLink = 'https://buy.stripe.com/28E14n3VWgyD3Sm5Gv2Nq0e';
           break;
         case 90:
-          paymentLink = 'https://buy.stripe.com/7sI28rdz83kJ1OweUW';
+          paymentLink = 'https://buy.stripe.com/28E9ATfEE8274Wqed12Nq0f';
           break;
         case 120:
-          paymentLink = 'https://buy.stripe.com/dR64gzdz8aNb50IbIL';
+          paymentLink = 'https://buy.stripe.com/8x23cvcss3LRagK2uj2Nq0g';
           break;
         case 150:
-          paymentLink = 'https://buy.stripe.com/fZeeVd52C8F3bp6dQU';
+          paymentLink = 'https://buy.stripe.com/5kQ00jgIIfuzex06Kz2Nq0h';
           break;
         case 180:
-          paymentLink = 'https://buy.stripe.com/4gw7sLamW2gF0KscMR';
+          paymentLink = 'https://buy.stripe.com/6oU3cvboogyD1Ke2uj2Nq0i';
           break;
         case 210:
-          paymentLink = 'https://buy.stripe.com/6oE28rfHg5sRgJq14a';
+          paymentLink = 'https://buy.stripe.com/7sYbJ13VWcinagK3yn2Nq0j';
           break;
         case 240:
-          paymentLink = 'https://buy.stripe.com/aEUfZh1Qq1cBgJq7sz';
+          paymentLink = 'https://buy.stripe.com/cNi7sLeAAcindsWb0P2Nq0k';
           break;
         case 270:
-          paymentLink = 'https://buy.stripe.com/3cs3cv8eO4oNeBi9AI';
+          paymentLink = 'https://buy.stripe.com/00wdR96442HNbkOed12Nq0l';
           break;
         case 300:
-          paymentLink = 'https://buy.stripe.com/4gweVd2Uu8F3bp68wF';
+          paymentLink = 'https://buy.stripe.com/dRm14ncss6Y3gF8b0P2Nq0m';
           break;
         case 330:
-          paymentLink = 'https://buy.stripe.com/00g7sL3Yy9J7gJq3cn';
+          paymentLink = 'https://buy.stripe.com/6oUcN5644aafagKfh52Nq0n';
           break;
         case 360:
-          paymentLink = 'https://buy.stripe.com/28o5kDbr08F3ctaeV6';
+          paymentLink = 'https://buy.stripe.com/bJecN50JK5TZ88C9WL2Nq0o';
           break;
-        // Ajoutez d'autres cas pour les différentes durées
         default:
           throw new Error('Durée non prise en charge');
       }
-  
-      // Redirigez l'utilisateur vers le lien de paiement Stripe
+
       window.location.href = paymentLink;
     } catch (error) {
       console.error('Une erreur s\'est produite lors de la redirection vers le paiement:', error);
     }
   };
-  
-  
-  
-
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isStepValid()) {
-      try {
-        const formattedChildrenDetails = formData.childrenDetails.map((child, index) =>
-          `Enfant ${index + 1} : Prénom - ${child.prenom}, Nom - ${child.nom}, Age - ${child.age}`
-        ).join('\n');
-  
-        const templateParams = {
-          ...formData,
-          formattedChildrenDetails,
-          selectedService,
-          totalPrice
-        };
-  
-        // Envoyer l'email de confirmation
-        const response = await emailjs.send("service_r0hs8xr", "template_gg6ezb8", templateParams);
-        
-        if (response.status === 200) {
-          // Vérifier le mode de paiement
-          if (formData.paymentMethod === 'cash') {
-            setShowConfirmationModal(true); // Afficher la modal de confirmation pour paiement en espèces
-            setTimeout(() => {
-              setShowConfirmationModal(false);
-              onClose(); // Fermer la modal principale après un délai
-            }, 3000);
-          } else if (formData.paymentMethod === 'card') {
-            await handleStripePayment(); // Rediriger vers Stripe pour le paiement par carte
-          }
-        } else {
-          console.error('Erreur d\'envoi avec EmailJS:', response);
-        }
-      } catch (error) {
-        console.error('Erreur lors de la soumission:', error);
+  const handleValidateReservation = async () => {
+    if (formData.guardDateISO && !validateGuardDate(formData.guardDateISO)) {
+      return;
+    }
+    if (
+      formData.guardDateISO &&
+      formData.startTime &&
+      !validateSameDayStartTime(formData.guardDateISO, formData.startTime)
+    ) {
+      return;
+    }
+
+    setIsSubmittingReservation(true);
+    setReservationError('');
+
+    try {
+      const formattedChildrenDetails = formData.childrenDetails.map((child, index) =>
+        `Enfant ${index + 1} : Prénom - ${child.prenom}, Nom - ${child.nom}, Age - ${child.age}`
+      ).join('\n');
+
+      const templateParams = {
+        ...formData,
+        formattedChildrenDetails,
+        selectedService,
+        totalPrice,
+        paymentMethod: 'Paiement par carte avant la prestation',
+      };
+
+      const response = await emailjs.send("service_k8sukr2", "template_054obuv", templateParams);
+
+      if (response.status === 200) {
+        setReservationValidated(true);
+      } else {
+        setReservationError('Une erreur est survenue lors de l\'envoi. Veuillez réessayer.');
       }
+    } catch (error) {
+      console.error('Erreur lors de la soumission:', error);
+      setReservationError('Une erreur est survenue lors de l\'envoi. Veuillez réessayer.');
+    } finally {
+      setIsSubmittingReservation(false);
     }
   };
-  
 
-  
-  
-  const handleCloseConfirmation = () => {
-    setShowConfirmationModal(false);
-    onClose();
+  const handleProceedToPayment = () => {
+    handleStripePayment();
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
   };
 
   const isStepValid = () => {
-    const currentFields = questions[step].fields;
+    const currentQuestion = questions[step];
+
+    if (currentQuestion.type === 'payment') {
+      return true;
+    }
+
+    const currentFields = currentQuestion.fields;
     return currentFields.every(field => {
       const value = formData[field.name];
       if (field.name === 'specialNeeds') {
@@ -489,18 +639,19 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
         return childrenDetails.every(child =>
           child.prenom.trim() !== '' &&
           child.nom.trim() !== '' &&
-          child.age !== ''
+          child.age !== '' &&
+          parseInt(child.age, 10) >= MIN_CHILD_AGE
         );
       }
       if (typeof value === 'string') return value.trim() !== '';
       if (typeof value === 'number') return !isNaN(value) && value !== '';
       if (Array.isArray(value)) return value.length > 0;
       return value !== '' && value !== null && value !== undefined;
-    }) && !timeError;
+    }) && !timeError && !dateError && !ageError;
   };
 
   const renderChildrenFields = () => {
-    return [...Array(Number(formData.nombreEnfants))].map((_, index) => (
+    return [...Array(Number(formData.nombreEnfants) || 1)].map((_, index) => (
       <div key={index} className={styles.formRow}>
         <h4>Enfant {index + 1}</h4>
         <label htmlFor={`childFirstName-${index}`}>Prénom</label>
@@ -519,10 +670,11 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
           onChange={(e) => handleChildDetailsChange(index, 'nom', e.target.value)}
           required
         />
-        <label htmlFor={`childAge-${index}`}>Âge</label>
+        <label htmlFor={`childAge-${index}`}>Âge (minimum {MIN_CHILD_AGE} ans)</label>
         <input
           id={`childAge-${index}`}
           type="number"
+          min={MIN_CHILD_AGE}
           value={formData.childrenDetails[index]?.age || ''}
           onChange={(e) => handleChildDetailsChange(index, 'age', e.target.value)}
           required
@@ -531,16 +683,42 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
     ));
   };
 
+  const renderPaymentStep = () => {
+    return (
+      <>
+        <div className={styles.paymentInfo}>
+          <p>
+            <span className={styles.paymentHighlight}>Paiement par carte obligatoire avant la prestation.</span>
+          </p>
+          <p>
+            Cela garantit la confirmation de votre réservation, quelle que soit la nounou assignée à votre garde.
+          </p>
+          <p>
+            Prenez le temps de vérifier les informations ci-dessous, puis validez votre réservation.
+            Vous pourrez ensuite accéder au paiement sécurisé Stripe.
+          </p>
+          <p className={styles.cmgHint}>
+            <strong>Bon à savoir :</strong> à partir de 16 heures de garde dans le mois, vous pouvez bénéficier
+            du Complément de libre choix du mode de garde (CMG) pour réduire vos frais de garde.
+          </p>
+          {totalPrice > 0 && (
+            <p>Montant à régler : <strong>{formatPrice(totalPrice)} €</strong></p>
+          )}
+        </div>
+        {reservationValidated && (
+          <div className={styles.reservationSuccess}>
+            <p>Votre réservation a bien été enregistrée.</p>
+            <p>Cliquez sur le bouton ci-dessous lorsque vous êtes prêt(e) à effectuer le paiement.</p>
+          </div>
+        )}
+        {reservationError && (
+          <p className={styles.errorMessage}>{reservationError}</p>
+        )}
+      </>
+    );
+  };
+
   if (!isOpen) return null;
-  const ConfirmationModal = ({ onClose }) => (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <h2>Confirmation de réservation</h2>
-        <p>Votre demande de réservation a bien été prise en compte !</p>
-        <button onClick={onClose}>Fermer</button>
-      </div>
-    </div>
-  );
 
   const currentQuestion = questions[step];
 
@@ -549,10 +727,12 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
       <div className={styles.modalContent}>
         <button className={styles.closeButton} onClick={onClose}>✖</button>
         <h2>Réservation - {selectedService}</h2>
-        {showConfirmationModal && <ConfirmationModal onClose={handleCloseConfirmation} />}
         <form onSubmit={handleSubmit}>
           <h3>{currentQuestion.title}</h3>
-          {currentQuestion.fields.map((field, index) => {
+
+          {currentQuestion.type === 'payment' && renderPaymentStep()}
+
+          {currentQuestion.type !== 'payment' && currentQuestion.fields.map((field, index) => {
             if (field.condition && !field.condition(formData)) {
               return null;
             }
@@ -593,6 +773,7 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
                       onChange={(e) => {
                         const isoDate = e.target.value;
                         const formattedDate = formatDate(isoDate);
+                        validateGuardDate(isoDate);
                         handleChange({
                           target: {
                             name: field.name,
@@ -604,18 +785,22 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
                           [`${field.name}ISO`]: isoDate
                         }));
                       }}
-                      min={getTomorrow()}
+                      min={getMinBookingDateISO()}
                       required
-                        />
-                        <input
-  id="durationInMinutes"
-  type="number"
-  name="durationInMinutes"
-  placeholder="Durée en minutes (par tranche de 30 minutes)"
-  min={30}
-  max={720}
-  step={30}
-/>
+                    />
+                    <p className={styles.dateHint}>
+                      Garde de dernière minute : réservation pour demain jusqu'à 17h,
+                      ou pour aujourd'hui au minimum 5 h avant le début. Hors dimanche.
+                    </p>
+                    <input
+                      id="durationInMinutes"
+                      type="number"
+                      name="durationInMinutes"
+                      placeholder="Durée en minutes (par tranche de 30 minutes)"
+                      min={30}
+                      max={720}
+                      step={30}
+                    />
                     <span>{formData[field.name]}</span>
                   </div>
                 ) : field.type === 'time' ? (
@@ -631,6 +816,16 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
                   />
                 ) : field.type === 'children' ? (
                   renderChildrenFields()
+                ) : field.name === 'nombreEnfants' ? (
+                  <input
+                    id={field.name}
+                    type="number"
+                    name={field.name}
+                    value={formData.nombreEnfants}
+                    onChange={handleChange}
+                    min={1}
+                    max={10}
+                  />
                 ) : (
                   <input
                     id={field.name}
@@ -642,13 +837,20 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
                   />
                 )}
               </div>
-
             );
           })}
-          {currentQuestion.fields.some(field => field.type === 'time') && formData.startTime && formData.endTime && !timeError && (
+          {currentQuestion.type !== 'payment' &&
+            currentQuestion.fields.some(field => field.type === 'time') &&
+            formData.startTime && formData.endTime && !timeError && (
             <div className={styles.priceInfo}>
-              <p>Tarif horaire : {HOURLY_RATE}€/heure</p>
-              <p>Prix total estimé : {totalPrice}€</p>
+              <p>Tarif horaire : {formatPrice(HOURLY_RATE)}€/heure</p>
+              <p>Prix total estimé : {formatPrice(totalPrice)}€</p>
+            </div>
+          )}
+          {currentQuestion.type === 'payment' && totalPrice > 0 && (
+            <div className={styles.priceInfo}>
+              <p>Tarif horaire : {formatPrice(HOURLY_RATE)}€/heure</p>
+              <p>Prix total estimé : {formatPrice(totalPrice)}€</p>
             </div>
           )}
           {step === 0 && addressError && (
@@ -656,6 +858,12 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
           )}
           {timeError && (
             <p className={styles.errorMessage}>{timeError}</p>
+          )}
+          {dateError && (
+            <p className={styles.errorMessage}>{dateError}</p>
+          )}
+          {ageError && (
+            <p className={styles.errorMessage}>{ageError}</p>
           )}
           <div className={styles.formActions}>
             {step > 0 && (
@@ -669,13 +877,32 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
               >
                 Suivant
               </button>
+            ) : currentQuestion.type === 'payment' ? (
+              reservationValidated ? (
+                <button
+                  type="button"
+                  className="submitButton enabled"
+                  onClick={handleProceedToPayment}
+                >
+                  Accéder au paiement sécurisé
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={`submitButton ${isSubmittingReservation ? 'disabled' : 'enabled'}`}
+                  onClick={handleValidateReservation}
+                  disabled={isSubmittingReservation}
+                >
+                  {isSubmittingReservation ? 'Validation en cours…' : 'Valider ma réservation'}
+                </button>
+              )
             ) : (
               <button
                 type="submit"
                 className={`submitButton ${!isNextButtonEnabled ? 'disabled' : 'enabled'}`}
                 disabled={!isNextButtonEnabled}
               >
-                {formData.paymentMethod === 'card' ? 'Réserver et procéder au paiement' : 'Réserver'}
+                Réserver
               </button>
             )}
           </div>
