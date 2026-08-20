@@ -559,6 +559,30 @@ const ReservationModal = ({ isOpen, onClose, onSubmit, selectedService }) => {
         case 360:
           paymentLink = 'https://buy.stripe.com/bJecN50JK5TZ88C9WL2Nq0o';
           break;
+        case 390:
+          paymentLink = 'https://buy.stripe.com/7sYcN58cc3LR0Gab0P2Nq0p';
+          break;
+        case 420:
+          paymentLink = 'https://buy.stripe.com/aFaaEX2RSgyDagKgl92Nq0q';
+          break;
+        case 450:
+          paymentLink = 'https://buy.stripe.com/6oUaEX3VWaaf0Gab0P2Nq0r';
+          break;
+        case 480:
+          paymentLink = 'https://buy.stripe.com/cNi14neAA4PV3Sm2uj2Nq0s';
+          break;
+        case 510:
+          paymentLink = 'https://buy.stripe.com/28E4gz3VW6Y3agKc4T2Nq0t';
+          break;
+        case 540:
+          paymentLink = 'https://buy.stripe.com/9B600jdww8279cG4Cr2Nq0u';
+          break;
+        case 570:
+          paymentLink = 'https://buy.stripe.com/aFa5kDeAA4PV4Wq7OD2Nq0v';
+          break;
+        case 600:
+          paymentLink = 'https://buy.stripe.com/4gM6oHeAA96b9cGc4T2Nq0w';
+          break;
         default:
           throw new Error('Durée non prise en charge');
       }
