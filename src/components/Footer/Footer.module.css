@@ -1,21 +1,19 @@
 .footer {
-  background-color: rgb(231, 164, 179);
+  background-color: rgb(197, 215, 229);
   padding: 2rem 0;
   text-align: center;
 }
 
 .footerContent {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 1rem;
+}
+.footerContent .footerLogo .logo img {
+  width: calc(100% - 2rem);
+  max-width: 20rem;
+  height: auto;
 }
 .footerContent .footerLogo h2 {
   font-size: 2rem;
@@ -34,7 +32,7 @@
 }
 .footerContent .footerNav ul li a {
   text-decoration: none;
-  color: #007bff;
+  color: rgb(255, 255, 255);
 }
 .footerContent .footerNav ul li a:hover {
   text-decoration: underline;
@@ -50,7 +48,7 @@
   margin: 0.5rem 0;
 }
 .footerContent .legalMentions p a {
-  color: #007bff;
+  color: rgb(255, 255, 255);
   text-decoration: none;
 }
 .footerContent .legalMentions p a:hover {
@@ -67,23 +65,18 @@
   margin-bottom: 0.5rem;
 }
 .footerBottom .devInfo {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  align-items: center;
+  justify-content: center;
 }
 .footerBottom .devInfo .logoDev {
   width: auto;
-  height: 30px;
+  height: 35px;
   margin-right: 10px;
   max-width: 100%;
 }
 .footerBottom .devInfo .devText {
   font-size: 1rem;
   color: #6c757d;
+  padding-right: 10px;
 }/*# sourceMappingURL=Footer.module.css.map */

@@ -1,0 +1,86 @@
+@import '../variables.scss';
+
+.cmg {
+  padding: 3rem 0;
+  background-color: $color2;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+
+  h2 {
+    font-size: 1.875rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+}
+
+.intro {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #555;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $color6;
+    margin-bottom: 0.75rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #555;
+    margin: 0;
+  }
+}
+
+.link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: $color6;
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.note {
+  text-align: center;
+  background-color: rgba($color6, 0.12);
+  border-left: 4px solid $color6;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.5;
+  max-width: 800px;
+  margin: 0 auto;
+}

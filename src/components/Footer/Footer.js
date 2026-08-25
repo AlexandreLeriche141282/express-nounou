@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from './Footer.module.scss';
 import logoDev from '../../Assets/images/logoPikcel2.svg';
-import logo from '../../Assets/logo2-removebg-preview.png';
+import logo from '../../Assets/logo-nounou-chou-express.webp';
 import Modal from '../Modal/Modal';
 
 const Footer = () => {
@@ -22,13 +22,14 @@ const Footer = () => {
           <ul>
             <li><a href="#a-propos">À propos</a></li>
             <li><a href="#reservation-particuliers">Réservation particuliers</a></li>
+            <li><a href="#cmg">CMG</a></li>
             <li><a href="#entreprises-sap">Entreprises SAP</a></li>
             <li><a href="#footer">Contact</a></li>
           </ul>
         </nav>
         <div className={styles.footerContact}>
-          <p>Contactez-nous : 06 66 28 72 91</p>
-          <p>Email : contact@expressnounou.fr</p>
+          <p>Contactez-nous : <a href="tel:0664953123">06 64 95 31 23</a></p>
+          <p>Email : <a href="mailto:nounou.chou95@hotmail.com">nounou.chou95@hotmail.com</a></p>
         </div>
         <div className={styles.legalMentions}>
           <h3>Mentions Légales</h3>
@@ -54,12 +55,12 @@ const Footer = () => {
       </div>
       <Modal isOpen={isModalOpen} onClose={closeModal}>
   <h2>Mentions Légales</h2>
-  <p><strong>Nom de l'entreprise</strong> : Express Nounou</p>
+  <p><strong>Nom de l'entreprise</strong> : Nounou Chou Express</p>
   <p><strong>Forme juridique</strong> : Entreprise individuelle</p>
   <p><strong>Numéro SIRET</strong> : 89298641500016</p>
   <p><strong>Adresse</strong> : 95610 Éragny</p>
-  <p><strong>Téléphone</strong> : 06 66 28 72 91</p>
-  <p><strong>Email</strong> : contact@expressnounou.fr</p>
+  <p><strong>Téléphone</strong> : 06 64 95 31 23</p>
+  <p><strong>Email</strong> : nounou.chou95@hotmail.com</p>
   
   <p><strong>Site réalisé par</strong> : pikcel.fr</p>
   

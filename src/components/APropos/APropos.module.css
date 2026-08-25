@@ -1,32 +1,21 @@
 @charset "UTF-8";
 .aPropos {
   padding: 1rem 0;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#FD6C9E), color-stop(33%, #FD6C9E), to(rgb(255, 255, 255)));
   background-image: linear-gradient(to bottom, #FD6C9E 0%, #FD6C9E 33%, rgb(255, 255, 255) 100%);
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
   padding: 0 2rem;
 }
 
 .photoContainer {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
   padding-right: 2rem;
 }
 
@@ -34,14 +23,11 @@
   width: 100%;
   max-width: 400px;
   border-radius: 10%;
-  -webkit-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .textContainer {
-  -webkit-box-flex: 2;
-      -ms-flex: 2;
-          flex: 2;
+  flex: 2;
 }
 .textContainer h1 {
   font-size: 2.5rem;
@@ -54,8 +40,7 @@
   color: inherit;
   text-shadow: none;
   display: inline-block;
-  -webkit-transform: rotate(-3deg);
-          transform: rotate(-3deg);
+  transform: rotate(-3deg);
 }
 .textContainer p {
   font-size: 1.1rem;
@@ -83,10 +68,7 @@
 
 @media (max-width: 768px) {
   .container {
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
+    flex-direction: column;
     text-align: center;
   }
   .photoContainer {

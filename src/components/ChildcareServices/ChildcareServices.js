@@ -3,8 +3,8 @@ import './ChildcareServices.scss';
 import ReservationModal from '../Reservation-modal/Reservation-modal';
 
 // Importez vos images ici
-import morningCareImage from '../../Assets/images/gardeMatin2.avif';
-import beforeSchoolImage from '../../Assets/images/gardeAvantEcole.avif';
+import morningCareImage from '../../Assets/images/Garde-matin.png';
+import beforeSchoolImage from '../../Assets/images/garde-avant-ecole.png';
 import afterSchoolImage from '../../Assets/images/grade-ecole.avif';
 import eveningCareImage from '../../Assets/images/garde-soir.avif';
 import dayCareImage from '../../Assets/images/grade-journee.avif';

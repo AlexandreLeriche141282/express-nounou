@@ -1,13 +1,7 @@
 .navbar {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  justify-content: space-between;
+  align-items: center;
   padding: 1rem 2rem;
   background-color: #ffffff;
   max-width: 1300px;
@@ -23,8 +17,6 @@
   width: 150px;
 }
 .navbar .navbarRight .navLinks {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   list-style-type: none;
   margin: 0;
@@ -37,20 +29,15 @@
   text-decoration: none;
   color: #333;
   font-weight: 500;
-  -webkit-transition: color 0.3s ease;
   transition: color 0.3s ease;
 }
 .navbar .navbarRight .navLinks li a:hover {
-  color: #007bff;
+  color: #FD6C9E;
 }
 .navbar .menuButton {
   display: none;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -ms-flex-pack: distribute;
-      justify-content: space-around;
+  flex-direction: column;
+  justify-content: space-around;
   width: 2rem;
   height: 2rem;
   background: transparent;
@@ -64,51 +51,38 @@
   height: 0.25rem;
   background: #333;
   border-radius: 10px;
-  -webkit-transition: all 0.3s linear;
   transition: all 0.3s linear;
   position: relative;
-  -webkit-transform-origin: 1px;
-          transform-origin: 1px;
+  transform-origin: 1px;
 }
 .navbar .menuButton span:first-child {
-  -webkit-transform: rotate(0);
-          transform: rotate(0);
+  transform: rotate(0);
 }
 .navbar .menuButton span:nth-child(2) {
   opacity: 1;
-  -webkit-transform: translateX(0);
-          transform: translateX(0);
+  transform: translateX(0);
 }
 .navbar .menuButton span:nth-child(3) {
-  -webkit-transform: rotate(0);
-          transform: rotate(0);
+  transform: rotate(0);
 }
 .navbar .menuButton.active span:first-child {
-  -webkit-transform: rotate(45deg);
-          transform: rotate(45deg);
+  transform: rotate(45deg);
 }
 .navbar .menuButton.active span:nth-child(2) {
   opacity: 0;
-  -webkit-transform: translateX(20px);
-          transform: translateX(20px);
+  transform: translateX(20px);
 }
 .navbar .menuButton.active span:nth-child(3) {
-  -webkit-transform: rotate(-45deg);
-          transform: rotate(-45deg);
+  transform: rotate(-45deg);
 }
 
 @media (max-width: 768px) {
   .navbar .navbarRight .menuButton {
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
   }
   .navbar .navbarRight .navLinks {
     display: none;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
+    flex-direction: column;
     position: absolute;
     top: 70px;
     right: 0;
@@ -116,28 +90,18 @@
     height: 100%;
     background: #ffffff;
     padding: 20px;
-    -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    -webkit-transform: translateY(10%);
-            transform: translateY(10%);
-    -webkit-transition: -webkit-transform 0.8s ease-in-out;
-    transition: -webkit-transform 0.8s ease-in-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transform: translateY(10%);
     transition: transform 0.8s ease-in-out;
-    transition: transform 0.8s ease-in-out, -webkit-transform 0.8s ease-in-out;
   }
   .navbar .navbarRight .navLinks li {
     padding-top: 70px;
   }
   .navbar .navbarRight .navbarRight.open .navLinks {
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-transform: translateY(0);
-            transform: translateY(0);
+    transform: translateY(0);
   }
   .navbar .navbarRight.open .navLinks {
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
   }
 }/*# sourceMappingURL=Navbar.module.css.map */

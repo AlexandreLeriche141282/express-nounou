@@ -1,4 +1,3 @@
-@charset "UTF-8";
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -6,20 +5,14 @@
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  justify-content: center;
+  align-items: center;
   z-index: 1000;
 }
 .modalOverlay .errorMessage {
-  color: red; /* Définit la couleur du texte en rouge */
-  font-weight: bold; /* Optionnel : rend le texte en gras */
+  color: red;
+  font-weight: bold;
 }
 
 .modalContent {
@@ -30,8 +23,7 @@
   max-width: 90%;
   max-height: 90vh;
   padding: 30px;
-  -webkit-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
 }
 .modalContent .closeButton {
@@ -43,7 +35,6 @@
   font-size: 24px;
   cursor: pointer;
   color: rgb(231, 164, 179);
-  -webkit-transition: color 0.3s ease;
   transition: color 0.3s ease;
 }
 .modalContent .closeButton:hover {
@@ -56,13 +47,8 @@
   font-size: 1.5rem;
 }
 .modalContent form {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  flex-direction: column;
   gap: 15px;
 }
 .modalContent form input,
@@ -72,7 +58,6 @@
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 1rem;
-  -webkit-transition: border-color 0.3s ease;
   transition: border-color 0.3s ease;
 }
 .modalContent form input:focus,
@@ -80,17 +65,53 @@
   outline: none;
   border-color: #FD6C9E;
 }
+.modalContent form .radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 10px 0;
+}
+.modalContent form .radioGroup .radioOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+}
+.modalContent form .radioGroup .radioOption:hover {
+  background-color: rgba(253, 108, 158, 0.05);
+}
+.modalContent form .radioGroup .radioOption input[type=radio] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #FD6C9E;
+}
+.modalContent form .radioGroup .radioOption input[type=radio]:checked + label {
+  color: #FD6C9E;
+  font-weight: 500;
+}
+.modalContent form .radioGroup .radioOption label {
+  margin: 0;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+.modalContent form .formRow[data-sap=true] {
+  animation: fadeIn 0.3s ease;
+  border-left: 2px solid #FD6C9E;
+  padding-left: 10px;
+  margin-left: 10px;
+}
 .modalContent form textarea {
   resize: vertical;
   min-height: 100px;
 }
 .modalContent form .formActions {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
+  justify-content: space-between;
   margin-top: 20px;
 }
 .modalContent form .formActions button {
@@ -99,7 +120,6 @@
   border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
-  -webkit-transition: all 0.3s ease;
   transition: all 0.3s ease;
   width: 48%;
 }
@@ -123,12 +143,32 @@
   background-color: #FD6C9E;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 @media (max-width: 600px) {
   .modalContent {
     width: 65%;
   }
   .modalContent form input,
   .modalContent form textarea {
+    font-size: 0.9rem;
+  }
+  .modalContent form .radioGroup .radioOption {
+    padding: 6px;
+  }
+  .modalContent form .radioGroup .radioOption input[type=radio] {
+    width: 18px;
+    height: 18px;
+  }
+  .modalContent form .radioGroup .radioOption label {
     font-size: 0.9rem;
   }
 }/*# sourceMappingURL=ChildcareReservationModal.module.css.map */

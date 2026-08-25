@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './Navbar.module.scss';
-import logo from '../../Assets/images/logo2.avif';
+import logo from '../../Assets/images/logo2.webp.webp';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,6 +25,7 @@ const Navbar = () => {
         <ul className={styles.navLinks}>
           <li><a href="#a-propos" onClick={toggleMenu}>À propos</a></li>
           <li><a href="#reservation-particuliers" onClick={toggleMenu}>Réservation particuliers</a></li>
+          <li><a href="#cmg" onClick={toggleMenu}>CMG</a></li>
           <li><a href="#entreprises-sap" onClick={toggleMenu}>Entreprises SAP</a></li>
           <li><a href="#footer" onClick={toggleMenu}>Contact</a></li>
         </ul>

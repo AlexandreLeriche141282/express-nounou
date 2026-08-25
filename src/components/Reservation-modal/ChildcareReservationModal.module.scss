@@ -28,6 +28,10 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
 
+  &.modalWide {
+    width: 680px;
+  }
+
   .closeButton {
     position: absolute;
     top: 10px;
@@ -57,13 +61,15 @@
     gap: 15px;
 
     input, 
-    textarea {
+    textarea,
+    select {
       width: 100%;
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 5px;
       font-size: 1rem;
       transition: border-color 0.3s ease;
+      background-color: #fff;
 
       &:focus {
         outline: none;
@@ -166,6 +172,21 @@
             background-color: $color6;
           }
         }
+
+        &[type="button"].paymentPulse {
+          background-color: $color6;
+          color: white;
+          animation: paymentBlink 1.2s ease-in-out infinite;
+
+          &:hover {
+            animation: none;
+            background-color: green;
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            animation: none;
+          }
+        }
       }
     }
   }
@@ -183,14 +204,225 @@
   }
 }
 
+@keyframes paymentBlink {
+  0%, 100% {
+    background-color: $color6;
+    box-shadow: 0 0 0 0 rgba($color6, 0.45);
+    transform: scale(1);
+  }
+  50% {
+    background-color: lighten($color6, 10%);
+    box-shadow: 0 0 16px 2px rgba($color6, 0.55);
+    transform: scale(1.03);
+  }
+}
+
+.nounouGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.nounouCard {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 2px solid #e8e8e8;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  text-align: left;
+  background: #fff;
+
+  &:hover {
+    border-color: rgba($color6, 0.5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  &.nounouCardSelected {
+    border-color: $color6;
+    background-color: rgba($color6, 0.04);
+    box-shadow: 0 2px 12px rgba($color6, 0.15);
+  }
+}
+
+.nounouPhoto {
+  flex-shrink: 0;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid $color2;
+}
+
+.nounouPhotoPlaceholder {
+  flex-shrink: 0;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $color2, $color3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.4rem;
+  border: 3px solid $color2;
+}
+
+.nounouInfo {
+  flex: 1;
+  min-width: 0;
+
+  h4 {
+    margin: 0 0 4px;
+    color: #333;
+    font-size: 1.05rem;
+  }
+
+  .nounouTitre {
+    margin: 0 0 8px;
+    color: $color6;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .nounouParcours {
+    margin: 0 0 8px;
+    color: #555;
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .nounouDiplomes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+
+    span {
+      background-color: rgba($color2, 0.35);
+      color: #444;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+  }
+}
+
+.paymentInfo {
+  background-color: rgba($color2, 0.2);
+  border-left: 4px solid $color6;
+  padding: 16px;
+  border-radius: 6px;
+  margin-top: 10px;
+
+  p {
+    margin: 0 0 8px;
+    color: #444;
+    font-size: 0.95rem;
+    line-height: 1.5;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .paymentHighlight {
+    color: $color6;
+    font-weight: 600;
+  }
+}
+
+.cmgHint {
+  background-color: rgba($color6, 0.08);
+  padding: 10px 12px;
+  border-radius: 4px;
+  margin-top: 8px !important;
+  font-size: 0.9rem !important;
+}
+
+.dateHint {
+  margin: 8px 0 0;
+  color: #666;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.priceInfo {
+  background-color: rgba($color6, 0.08);
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-top: 8px;
+
+  p {
+    margin: 4px 0;
+    color: #333;
+    font-weight: 500;
+  }
+}
+
+.scheduleSummary {
+  background-color: rgba($color6, 0.08);
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-top: 8px;
+
+  p {
+    margin: 4px 0;
+    color: #333;
+    font-weight: 500;
+  }
+
+  strong {
+    color: $color6;
+  }
+}
+
+.reservationSuccess {
+  background-color: rgba(76, 175, 80, 0.12);
+  border-left: 4px solid #4caf50;
+  padding: 16px;
+  border-radius: 6px;
+  margin-top: 16px;
+
+  p {
+    margin: 0 0 8px;
+    color: #2e7d32;
+    font-size: 0.95rem;
+    line-height: 1.5;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
 // Responsive Design
 @media (max-width: 600px) {
   .modalContent {
     width: 65%;
 
+    &.modalWide {
+      width: 90%;
+    }
+  }
+
+  .nounouCard {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .nounouDiplomes {
+      justify-content: center;
+    }
+  }
+
+  .modalContent {
     form {
       input, 
-      textarea {
+      textarea,
+      select {
         font-size: 0.9rem;
       }
 

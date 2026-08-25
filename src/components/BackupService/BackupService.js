@@ -18,7 +18,7 @@ const BackupService = () => {
     
     // Envoi des données au serveur Formspree
     try {
-      const response = await fetch('https://formspree.io/f/xvggayvz', {
+      const response = await fetch('https://formspree.io/f/xanygezw', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',

@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './APropos.module.scss';
-import photoCliente from '../../Assets/images/GE2.avif'; // Assurez-vous d'avoir cette image
+import photoCliente from '../../Assets/images/garde-enfant-acceuil.jpg';
+import { SERVICE_RADIUS_KM } from '../../config/serviceArea';
 
 
 const APropos = () => {
@@ -16,7 +17,7 @@ const APropos = () => {
             {/* Bonjour, je suis [Votre Nom], spécialiste en garde d'enfants de dernière minute. 
             Avec plus de [X] années d'expérience dans le domaine de la petite enfance, 
             je suis passionnée par le bien-être et l'épanouissement des enfants. */}
-            Je vous propose mes services de remplacement d'urgence pour les entreprises sap et les particuliers employeurs <strong>à Éragny et aux alentours (30km)</strong>
+            Je vous propose mes services de remplacement d'urgence pour les entreprises sap et les particuliers employeurs <strong>à Éragny et aux alentours ({SERVICE_RADIUS_KM} km)</strong>
           </p>
           {/* <p>
             Mes services incluent :
